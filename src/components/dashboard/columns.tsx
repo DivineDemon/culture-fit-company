@@ -67,12 +67,12 @@ const ActionsCell = ({ row }: { row: Row<Employee> }) => {
           </DropdownMenuItem>
           {!isRoleModel ? (
             <DropdownMenuItem onClick={() => handleRoleModelToggle(true)}>
-              <Sparkles className="text-yellow-400" />
+              <Sparkles className="" />
               <span className="ml-2 text-sm">Make Role Model</span>
             </DropdownMenuItem>
           ) : (
             <DropdownMenuItem onClick={() => handleRoleModelToggle(false)}>
-              <Sparkles className="text-yellow-400" />
+              <Sparkles className="" />
               <span className="ml-2 text-sm">Remove Role Model</span>
             </DropdownMenuItem>
           )}

@@ -17,7 +17,7 @@ const AuthLayout = () => {
         <div className="absolute top-5 right-5">
           <ModeToggle />
         </div>
-        <img src={theme === "dark" ? Logo : LogoBlack} alt="logo" className="mx-auto mb-5 w-32 rounded-lg" />
+        <img src={theme === "dark" ? Logo : LogoBlack} alt="logo" className="mx-auto mb-5 w-28 rounded-lg" />
         <Outlet />
       </div>
     </div>
