@@ -1,16 +1,21 @@
 import { Building2, Download, UserRound } from "lucide-react";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 import { useRowColumns } from "@/components/dashboard/columns";
 import EmployeeSheet from "@/components/dashboard/employee-sheet";
 import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { employees } from "@/lib/constants";
+import type { RootState } from "@/store";
+import { useGetEmployeesQuery } from "@/store/services/employees";
 
 const Dashboard = () => {
   const columns = useRowColumns();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState<string>("");
+
+  const id = useSelector((state: RootState) => state.global.id);
+  const { data: employee, isLoading: isLoadingEmployee } = useGetEmployeesQuery(id!, { skip: !id });
 
   return (
     <>
@@ -44,10 +49,18 @@ const Dashboard = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <DataTable
-            columns={columns}
-            data={search ? employees.filter((e) => e.email.toLowerCase().includes(search.toLowerCase())) : employees}
-          />
+          {isLoadingEmployee ? (
+            <div>Loading...</div>
+          ) : (
+            <DataTable
+              columns={columns}
+              data={
+                search
+                  ? employee.filter((e: { email: string }) => e.email.toLowerCase().includes(search.toLowerCase()))
+                  : employee
+              }
+            />
+          )}
         </div>
         <EmployeeSheet open={open} setOpen={setOpen} />
       </div>

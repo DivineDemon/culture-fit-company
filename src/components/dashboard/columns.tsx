@@ -29,11 +29,12 @@ const ActionsCell = ({ row }: { row: Row<Employee> }) => {
   const [warn, setWarn] = useState<boolean>(false);
   const [detail, setDetail] = useState<boolean>(false);
   const [selected, setSelected] = useState<string>("");
+
   const [isRoleModel, setIsRoleModel] = useState<boolean>(row.original.is_role_model);
 
-  const handleRoleModelToggle = (value: boolean) => {
-    setIsRoleModel(value);
-    row.original.is_role_model = value;
+  const handleRoleModelToggle = () => {
+    setIsRoleModel((prev) => !prev);
+    row.original.is_role_model = !isRoleModel;
   };
 
   return (
@@ -52,30 +53,25 @@ const ActionsCell = ({ row }: { row: Row<Employee> }) => {
           <DropdownMenuItem
             onClick={() => {
               setSelected(row.original.id);
+              setDetail(true);
             }}
           >
             <FileText />
-            <span
-              className="ml-2 text-sm"
-              onClick={() => {
-                setSelected(row.original.id);
-                setDetail(true);
-              }}
-            >
-              View Details
-            </span>
+            <span className="ml-2 text-sm">View Details</span>
           </DropdownMenuItem>
+
           {!isRoleModel ? (
-            <DropdownMenuItem onClick={() => handleRoleModelToggle(true)}>
-              <Sparkles className="" />
+            <DropdownMenuItem onClick={handleRoleModelToggle}>
+              <Sparkles />
               <span className="ml-2 text-sm">Make Role Model</span>
             </DropdownMenuItem>
           ) : (
-            <DropdownMenuItem onClick={() => handleRoleModelToggle(false)}>
-              <Sparkles className="" />
+            <DropdownMenuItem onClick={handleRoleModelToggle}>
+              <Sparkles />
               <span className="ml-2 text-sm">Remove Role Model</span>
             </DropdownMenuItem>
           )}
+
           <DropdownMenuItem
             onClick={() => {
               setSelected(row.original.id);
@@ -87,13 +83,16 @@ const ActionsCell = ({ row }: { row: Row<Employee> }) => {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
       <WarningModal
         open={warn}
         title="Are you sure?"
         text={<span>Are you sure you want to Remove this User?</span>}
         setOpen={setWarn}
       />
+
       <EmployeeSheet id={selected} open={open} setOpen={setOpen} employee={row.original ?? undefined} />
+
       <UserSheet id={selected} open={detail} setOpen={setDetail} employee={row.original ?? undefined} />
     </>
   );

@@ -1,18 +1,26 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState: GlobalState = {
-  user: null,
+  employee: "",
+  token: "",
+  id: "",
 };
 
 const globalSlice = createSlice({
   name: "global",
   initialState,
   reducers: {
-    setUser: (state, action) => {
-      state.user = action.payload;
+    setemployee: (state, action) => {
+      state.employee = action.payload;
+    },
+    setToken: (state, action) => {
+      state.token = action.payload;
+    },
+    setId: (state, action) => {
+      state.id = action.payload;
     },
   },
 });
 
-export const { setUser } = globalSlice.actions;
+export const { setemployee, setToken, setId } = globalSlice.actions;
 export default globalSlice.reducer;

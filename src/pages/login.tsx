@@ -1,42 +1,70 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useLoginMutation } from "@/store/services/auth";
 
-const AuthForm = () => {
+const Login = () => {
   const navigate = useNavigate();
-  const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [login, { isLoading }] = useLoginMutation();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const data = await login({ email, password });
+      if (data) {
+        toast.success("Login successful!");
+        navigate("/dashboard");
+      }
+    } catch (_error) {
+      toast.error("Login failed. Please check your credentials and try again.");
+    }
+  };
 
   return (
-    <form className="mx-auto flex w-[90%] flex-col items-center justify-center gap-6 lg:w-2/3 xl:w-1/2">
+    <form
+      onSubmit={handleSubmit}
+      className="mx-auto flex w-[90%] flex-col items-center justify-center gap-6 lg:w-2/3 xl:w-1/2"
+    >
       <div className="flex w-full flex-col items-center justify-center gap-3">
         <span className="w-full text-center font-bold text-[32px] leading-[32px] md:text-[48px] md:leading-[48px]">
-          {isLogin ? "Welcome to the Culture Fit" : "Create your account"}
+          Welcome to <br /> Culture Fit
         </span>
         <span className="w-full text-center text-[#71717A] text-[14px] leading-[14px]">
-          {isLogin ? "Enter your credentials to login." : "Fill the fields below to sign up."}
+          Enter your credentials to login.
         </span>
       </div>
 
       <div className="flex w-full flex-col gap-2">
-        {!isLogin && <Input type="text" className="w-full p-5" placeholder="Enter your user name" />}
-        <Input type="email" className="w-full p-5" placeholder="Enter your email" />
-        <Input type="password" className="w-full p-5" placeholder="Enter your password" />
-        {!isLogin && <Input type="password" className="w-full p-5" placeholder="Confirm your password" />}
+        <Input
+          type="email"
+          name="email"
+          className="w-full p-5"
+          placeholder="Enter your email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <Input
+          type="password"
+          name="password"
+          className="w-full p-5"
+          placeholder="Enter your password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
       </div>
 
-      <Button className="w-full" variant="default" size="lg" onClick={() => navigate("/dashboard")} type="button">
-        {isLogin ? "Sign In with Email" : "Sign Up with Email"}
+      <Button className="w-full" variant="default" size="lg" type="submit" disabled={isLoading}>
+        {isLoading ? "Signing In..." : "Sign In with Email"}
       </Button>
-
-      <p className="text-[#71717A] text-sm">
-        {isLogin ? "Don't have an account?" : "Already have an account?"}&nbsp;
-        <button type="button" onClick={() => setIsLogin(!isLogin)} className="font-medium text-primary hover:underline">
-          {isLogin ? "Sign Up" : "Login"}
-        </button>
-      </p>
     </form>
   );
 };
 
-export default AuthForm;
+export default Login;

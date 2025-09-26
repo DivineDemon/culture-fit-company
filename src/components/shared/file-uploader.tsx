@@ -1,67 +1,94 @@
-import { type ChangeEvent, useCallback, useState } from "react";
+import { X } from "lucide-react";
+import { useState } from "react";
 import { useDropzone } from "react-dropzone";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Badge } from "../ui/badge";
 
-const FileUploader = () => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+interface UploadModalProps {
+  open: boolean;
+  onClose: () => void;
+  onUpload: (files: File[]) => void;
+  isLoading?: boolean;
+}
 
-  const handleFile = (file: File) => {
-    if (file.type !== "application/pdf") {
-      alert("Please select a PDF file.");
-      return;
-    }
-    setSelectedFile(file);
-  };
-
-  const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
-      if (acceptedFiles.length > 0) {
-        handleFile(acceptedFiles[0]);
-      }
-    },
-    [handleFile],
-  );
+const UploadModal = ({ open, onClose, onUpload, isLoading }: UploadModalProps) => {
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    multiple: false,
-    accept: { "application/pdf": [] },
+    onDrop: (acceptedFiles) => {
+      if (acceptedFiles.length > 0) {
+        setUploadedFiles((prev) => [...prev, ...acceptedFiles]);
+      }
+    },
+    multiple: true,
+    accept: {
+      "application/pdf": [],
+    },
   });
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) handleFile(file);
-    e.target.value = ""; // reset input
+  const handleRemoveFile = (index: number) => {
+    setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleUpload = () => {
+    if (uploadedFiles.length > 0) {
+      onUpload(uploadedFiles);
+      setUploadedFiles([]);
+      onClose();
+    }
   };
 
   return (
-    <div className="flex w-full flex-col items-center justify-center gap-5">
-      <div className="flex w-full flex-col gap-2 rounded-lg bg-muted p-5">
-        <span className="font-semibold text-lg">Upload PDF File</span>
-        <span className="text-muted-foreground text-sm">Only PDF files are supported.</span>
-      </div>
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="font-semibold text-lg">Upload Company Policy Files</DialogTitle>
+        </DialogHeader>
 
-      <div
-        {...getRootProps()}
-        className="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-border border-dashed bg-muted/30 px-5 py-10 text-center transition hover:bg-muted/50"
-      >
-        <input {...getInputProps()} onChange={handleFileChange} />
-        {isDragActive ? (
-          <span className="font-medium text-base">Drop the PDF here...</span>
-        ) : (
-          <>
-            <span className="font-medium text-base">Drag & Drop your PDF here</span>
-            <span className="text-muted-foreground text-sm">or click to browse</span>
-          </>
-        )}
-      </div>
+        <div
+          {...getRootProps()}
+          className="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-border border-dashed bg-muted/30 px-5 py-10 text-center transition hover:bg-muted/50"
+        >
+          <input {...getInputProps()} />
 
-      {selectedFile && (
-        <div className="text-green-600 text-sm">
-          ✅ Selected File: <strong>{selectedFile.name}</strong>
+          {isDragActive ? (
+            <span className="font-medium text-base">Drop the files here...</span>
+          ) : (
+            <>
+              <span className="font-medium text-base">Drag & Drop PDF files here</span>
+              <span className="text-muted-foreground text-sm">You can upload multiple files</span>
+            </>
+          )}
         </div>
-      )}
-    </div>
+
+        {uploadedFiles.length > 0 && (
+          <div className="mt-4 flex max-h-48 gap-2 overflow-x-auto">
+            {uploadedFiles.map((file, index) => (
+              <Badge key={index} className="flex items-center justify-between rounded-md border px-2 text-xs">
+                <span className="max-w-[75%] truncate">{file.name}</span>
+                <button
+                  onClick={() => handleRemoveFile(index)}
+                  className="text-muted-foreground hover:text-destructive"
+                >
+                  <X className="size-4" />
+                </button>
+              </Badge>
+            ))}
+          </div>
+        )}
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="submit" onClick={handleUpload} disabled={isLoading || uploadedFiles.length === 0}>
+            {isLoading ? "Uploading..." : "Upload"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 
-export default FileUploader;
+export default UploadModal;
