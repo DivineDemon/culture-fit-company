@@ -1,4 +1,4 @@
-import { Building2, Download, UserRound } from "lucide-react";
+import { Building2, Download, Loader2, UserRound } from "lucide-react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useRowColumns } from "@/components/dashboard/columns";
@@ -50,7 +50,9 @@ const Dashboard = () => {
             onChange={(e) => setSearch(e.target.value)}
           />
           {isLoadingEmployee ? (
-            <div>Loading...</div>
+            <div className="flex h-full w-full items-center justify-center">
+              <Loader2 className="size-8 animate-spin text-primary" />
+            </div>
           ) : (
             <DataTable
               columns={columns}
@@ -62,7 +64,12 @@ const Dashboard = () => {
             />
           )}
         </div>
-        <EmployeeSheet open={open} setOpen={setOpen} />
+        <EmployeeSheet
+          open={open}
+          setOpen={setOpen}
+          employee={employee?.find((e: { id: string }) => e.id === id)}
+          companyId={id}
+        />
       </div>
     </>
   );

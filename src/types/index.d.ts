@@ -5,32 +5,29 @@ declare type GlobalState = {
 }
 
 declare type PostLogin = {
-    email: string;
-    password: string;
-  }
+  email: string;
+  password: string;
+}
 
 declare type PostLoginResponse = {
-    status: string;
-    message: string;
-    data: {
-      access_token: string;
-      company_id: string;
-    };
-  }
+  access_token: string;
+  company_id: string;
+}
 
 
-declare type employees = {
-    id: string;
-    company_id: string;
-    user_id: string;
-    first_name: string;
-    last_name: string;
-    password: string;
-    email: string;
-    position: string;
-    salary: number;
-    is_candidate: boolean;
-    files: string[];
-    temp_password: string;
-  }
-
+declare type Employees = {
+  id: string;
+  company_id: string;
+  user_id: string;
+  name: string;
+  email: string;
+  password: string;
+  date_of_birth: string;
+  user_phone_number: string;
+  user_designation: string;
+  department: string;
+  salary: number;
+  is_role_model: boolean;
+  is_candidate: boolean;
+  files: any[];
+}

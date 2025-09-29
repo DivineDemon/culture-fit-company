@@ -1,7 +1,8 @@
 import type { Column, Row } from "@tanstack/react-table";
-import { ArrowDownAZ, FilePenLine, FileText, MoreHorizontal, Sparkles, Trash } from "lucide-react";
+import { ArrowDownAZ, FilePenLine, FileText, MoreHorizontal, Trash } from "lucide-react";
 import { useState } from "react";
 import EmployeeSheet from "@/components/dashboard/employee-sheet";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -14,14 +15,19 @@ import UserSheet from "./user-sheet";
 
 export type Employee = {
   id: string;
+  company_id: string;
+  user_id: string;
   name: string;
   email: string;
-  password: string;
+  password: string | null;
+  date_of_birth: string;
+  user_phone_number: string;
   user_designation: string;
   department: string;
+  salary: number;
   is_role_model: boolean;
-  contact_number: string;
-  date_of_birth: string;
+  is_candidate: boolean;
+  files: string[];
 };
 
 const ActionsCell = ({ row }: { row: Row<Employee> }) => {
@@ -29,13 +35,6 @@ const ActionsCell = ({ row }: { row: Row<Employee> }) => {
   const [warn, setWarn] = useState<boolean>(false);
   const [detail, setDetail] = useState<boolean>(false);
   const [selected, setSelected] = useState<string>("");
-
-  const [isRoleModel, setIsRoleModel] = useState<boolean>(row.original.is_role_model);
-
-  const handleRoleModelToggle = () => {
-    setIsRoleModel((prev) => !prev);
-    row.original.is_role_model = !isRoleModel;
-  };
 
   return (
     <>
@@ -46,7 +45,12 @@ const ActionsCell = ({ row }: { row: Row<Employee> }) => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => setOpen(true)}>
+          <DropdownMenuItem
+            onClick={() => {
+              setSelected(row.original.id);
+              setOpen(true);
+            }}
+          >
             <FilePenLine />
             <span className="ml-2 text-sm">Edit Employee</span>
           </DropdownMenuItem>
@@ -59,18 +63,6 @@ const ActionsCell = ({ row }: { row: Row<Employee> }) => {
             <FileText />
             <span className="ml-2 text-sm">View Details</span>
           </DropdownMenuItem>
-
-          {!isRoleModel ? (
-            <DropdownMenuItem onClick={handleRoleModelToggle}>
-              <Sparkles />
-              <span className="ml-2 text-sm">Make Role Model</span>
-            </DropdownMenuItem>
-          ) : (
-            <DropdownMenuItem onClick={handleRoleModelToggle}>
-              <Sparkles />
-              <span className="ml-2 text-sm">Remove Role Model</span>
-            </DropdownMenuItem>
-          )}
 
           <DropdownMenuItem
             onClick={() => {
@@ -91,7 +83,13 @@ const ActionsCell = ({ row }: { row: Row<Employee> }) => {
         setOpen={setWarn}
       />
 
-      <EmployeeSheet id={selected} open={open} setOpen={setOpen} employee={row.original ?? undefined} />
+      <EmployeeSheet
+        companyId={row.original.company_id}
+        id={selected}
+        open={open}
+        setOpen={setOpen}
+        employee={row.original ?? undefined}
+      />
 
       <UserSheet id={selected} open={detail} setOpen={setDetail} employee={row.original ?? undefined} />
     </>
@@ -101,7 +99,8 @@ const ActionsCell = ({ row }: { row: Row<Employee> }) => {
 export const useRowColumns = () => {
   return [
     {
-      accessorKey: "name",
+      id: "employee_name",
+      accessorFn: (row: Employee) => `${row.name}`,
       header: ({ column }: { column: Column<Employee> }) => (
         <Button variant="ghost" type="button" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
           Employee Name
@@ -109,32 +108,77 @@ export const useRowColumns = () => {
         </Button>
       ),
       cell: ({ row }: { row: Row<Employee> }) => (
-        <span className="ml-3 flex cursor-pointer items-center gap-1 font-medium">
-          {row.original.is_role_model && <Sparkles className="h-4 w-4 text-yellow-400" />}
-          {row.getValue("name")}
-        </span>
+        <span className="ml-3 flex cursor-pointer items-center gap-1 font-medium">{row.original.name || "N/A"}</span>
       ),
     },
     {
       accessorKey: "email",
       header: "Email",
       cell: ({ row }: { row: Row<Employee> }) => (
-        <span className="font-semibold text-[#71717A] text-sm">{row.getValue("email")}</span>
+        <span className="font-semibold text-[#71717A] text-sm">{row.getValue("email") || "N/A"}</span>
       ),
     },
     {
       accessorKey: "department",
       header: "Department",
       cell: ({ row }: { row: Row<Employee> }) => (
-        <span className="font-semibold text-[#71717A] text-sm">{row.getValue("department")}</span>
+        <span className="font-semibold text-[#71717A] text-sm">{row.getValue("department") || "N/A"}</span>
       ),
     },
     {
       accessorKey: "user_designation",
       header: "Designation",
       cell: ({ row }: { row: Row<Employee> }) => (
-        <span className="font-semibold text-[#71717A] text-sm">{row.getValue("user_designation")}</span>
+        <span className="font-semibold text-[#71717A] text-sm">{row.getValue("user_designation") || "N/A"}</span>
       ),
+    },
+    {
+      accessorKey: "is_candidate",
+      header: ({ column }: { column: Column<Employee> }) => (
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="w-[120px] justify-between font-semibold text-sm">
+                Status
+                <ArrowDownAZ className="ml-2" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuItem onClick={() => column.setFilterValue(undefined)}>All</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => column.setFilterValue(true)}>Candidate</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => column.setFilterValue(false)}>Employee</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      ),
+      cell: ({ row }: { row: Row<Employee> }) => (
+        <span className="ml-3 font-semibold text-[#71717A] text-sm">
+          {row.getValue("is_candidate") ? "Candidate" : "Employee"}
+        </span>
+      ),
+      filterFn: (row: Row<Employee>, id: string, value: boolean | undefined) => {
+        if (value === undefined) return true;
+        return row.getValue(id) === value;
+      },
+    },
+    {
+      accessorKey: "is_role_model",
+      header: "Role Model",
+      cell: ({ row }: { row: Row<Employee> }) => {
+        const isRoleModel = row.getValue("is_role_model");
+        return (
+          <Badge
+            variant="outline"
+            className={`w-1/2 px-3 ${
+              isRoleModel
+                ? "border-green-400 bg-green-400/20 text-green-600"
+                : "border-red-400 bg-red-500/20 text-destructive"
+            }`}
+          >
+            {isRoleModel ? "Accept" : "Reject"}
+          </Badge>
+        );
+      },
     },
     {
       id: "actions",

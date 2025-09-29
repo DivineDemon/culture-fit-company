@@ -1,14 +1,15 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { type Dispatch, type SetStateAction, useState } from "react";
+import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
+import { toast } from "sonner";
+import type z from "zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { employeeSchema } from "@/lib/form-schemas";
-import { Label } from "../ui/label";
+import { usePostEmployeeMutation, useUpdateEmployeeMutation } from "@/store/services/employees";
 import { Switch } from "../ui/switch";
 import type { Employee } from "./columns";
 
@@ -17,41 +18,61 @@ interface EmployeeSheetProps {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   employee?: Employee;
+  companyId: string;
 }
 
-const EmployeeSheet = ({ id, open, setOpen, employee }: EmployeeSheetProps) => {
+const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheetProps) => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+
+  const [postEmployee, { isLoading: isLoadingPost }] = usePostEmployeeMutation();
+  const [updateEmployee, { isLoading: isLoadingUpdate }] = useUpdateEmployeeMutation();
 
   const form = useForm<z.infer<typeof employeeSchema>>({
     resolver: zodResolver(employeeSchema),
-    defaultValues: employee
-      ? {
-          name: employee.name,
-          email: employee.email,
-          password: employee.password,
-          user_designation: employee.user_designation,
-          department: employee.department,
-          is_role_model: employee.is_role_model,
-          contact_number: employee.contact_number,
-          date_of_birth: employee.date_of_birth,
-        }
-      : {
-          name: "",
-          email: "",
-          password: "",
-          user_designation: "",
-          department: "",
-          is_role_model: false,
-          contact_number: "",
-          date_of_birth: "",
-        },
   });
 
-  const onSubmit = () => {
-    setOpen(false);
+  const onSubmit = async (data: z.infer<typeof employeeSchema>) => {
+    const payload = {
+      id: id ?? "",
+      user_id: employee?.id ?? "",
+      company_id: companyId,
+      is_role_model: data.is_role_model ?? false,
+      is_candidate: data.is_candidate ?? false,
+      ...data,
+      files: uploadedFile ? [uploadedFile].map((file) => file.name) : [],
+      password: data.password ?? "",
+    };
+
+    try {
+      if (id) {
+        const response = await updateEmployee({ id, data: payload, companyId });
+
+        if (response) {
+          toast.success("Employee Updated Successfully!");
+          setOpen(false);
+          window.location.reload();
+          return;
+        } else {
+          toast.error("Something went wrong, Please try again!");
+        }
+      } else {
+        const response = await postEmployee({ companyId, data: payload });
+
+        if ("data" in response) {
+          toast.success("Employee Created Successfully!");
+          setOpen(false);
+          window.location.reload();
+          return;
+        } else {
+          toast.error("Something went wrong, Please try again!");
+        }
+      }
+      setOpen(false);
+    } catch (_error) {
+      toast.error("Unexpected error occurred!");
+    }
   };
 
-  // Dropzone for file upload
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: (acceptedFiles) => {
       if (acceptedFiles.length > 0) {
@@ -66,6 +87,23 @@ const EmployeeSheet = ({ id, open, setOpen, employee }: EmployeeSheetProps) => {
       "application/vnd.ms-excel": [],
     },
   });
+
+  useEffect(() => {
+    if (id && employee) {
+      form.reset({
+        name: employee.name ?? "",
+        email: employee.email ?? "",
+        password: employee.password ?? "",
+        user_designation: employee.user_designation ?? "",
+        department: employee.department ?? "",
+        user_phone_number: employee.user_phone_number ?? "",
+        date_of_birth: employee.date_of_birth ?? "",
+        salary: employee.salary ?? 0,
+        is_candidate: employee.is_candidate ?? false,
+        is_role_model: employee.is_role_model ?? false,
+      });
+    }
+  }, [id, employee, form]);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -121,7 +159,13 @@ const EmployeeSheet = ({ id, open, setOpen, employee }: EmployeeSheetProps) => {
                     Password<span className="text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="******" {...field} />
+                    <Input
+                      type="password"
+                      placeholder="******"
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      value={field.value || ""}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -155,42 +199,24 @@ const EmployeeSheet = ({ id, open, setOpen, employee }: EmployeeSheetProps) => {
                     Department<span className="text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="IT / HR / Finance" {...field} />
+                    <Input placeholder="Engineering" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            {/* Is Role Model */}
+            {/* Phone */}
             <FormField
               control={form.control}
-              name="is_role_model"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-2">
-                  <div className="space-y-0.5">
-                    <FormLabel>
-                      Is Role Model?
-                      <span className="text-destructive">*</span>
-                    </FormLabel>
-                  </div>
-                  <FormControl>
-                    <Switch checked={field.value} onCheckedChange={field.onChange} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Contact Number */}
-            <FormField
-              control={form.control}
-              name="contact_number"
+              name="user_phone_number"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Contact Number</FormLabel>
+                  <FormLabel>
+                    Contact Number<span className="text-destructive">*</span>
+                  </FormLabel>
                   <FormControl>
-                    <Input placeholder="0300 1234567" {...field} />
+                    <Input placeholder="+1234567890" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -212,6 +238,58 @@ const EmployeeSheet = ({ id, open, setOpen, employee }: EmployeeSheetProps) => {
               )}
             />
 
+            {/* Salary */}
+            <FormField
+              control={form.control}
+              name="salary"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Salary<span className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="50000"
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Candidate Switch */}
+            <FormField
+              control={form.control}
+              name="is_candidate"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-2">
+                  <FormLabel>Is Candidate?</FormLabel>
+                  <FormControl>
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Role Model Switch */}
+            <FormField
+              control={form.control}
+              name="is_role_model"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-2">
+                  <FormLabel>Is Role Model?</FormLabel>
+                  <FormControl>
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             {/* File Uploader */}
             <div className="flex flex-col gap-2">
               <FormLabel>Upload File</FormLabel>
@@ -220,7 +298,9 @@ const EmployeeSheet = ({ id, open, setOpen, employee }: EmployeeSheetProps) => {
                 className="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-border border-dashed bg-muted/30 px-5 py-10 text-center transition hover:bg-muted/50"
               >
                 <input {...getInputProps()} />
-                {isDragActive ? (
+                {uploadedFile ? (
+                  <span className="font-medium text-base text-primary">{uploadedFile.name}</span>
+                ) : isDragActive ? (
                   <span className="font-medium text-base">Drop the file here...</span>
                 ) : (
                   <>
@@ -229,10 +309,9 @@ const EmployeeSheet = ({ id, open, setOpen, employee }: EmployeeSheetProps) => {
                   </>
                 )}
               </div>
-              {uploadedFile && <Label className="text-primary text-sm">Selected File: {uploadedFile.name}</Label>}
             </div>
 
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="mt-auto w-full" disabled={isLoadingPost || isLoadingUpdate}>
               {id ? "Update Employee" : "Add Employee"}
             </Button>
           </form>

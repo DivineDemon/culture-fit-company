@@ -15,8 +15,8 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const data = await login({ email, password });
-      if (data) {
+      const response = await login({ email, password });
+      if (response.data?.access_token) {
         toast.success("Login successful!");
         navigate("/dashboard");
       }

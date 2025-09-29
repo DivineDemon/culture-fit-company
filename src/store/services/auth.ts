@@ -11,9 +11,10 @@ export const endpoints = api.injectEndpoints({
       }),
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         const { data } = (await queryFulfilled) as { data: PostLoginResponse };
-        dispatch(setToken(data.data.access_token));
-        dispatch(setId(data.data.company_id));
+        dispatch(setToken(data.access_token));
+        dispatch(setId(data.company_id));
       },
+      transformResponse: (response: { status: string; message: string; data: PostLoginResponse }) => response.data,
     }),
   }),
 });
