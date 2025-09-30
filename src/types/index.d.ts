@@ -29,5 +29,10 @@ declare type Employees = {
   salary: number;
   is_role_model: boolean;
   is_candidate: boolean;
-  files: any[];
+  files: string[];
+}
+
+interface FileItem {
+  id: string;
+  file_name: string;
 }

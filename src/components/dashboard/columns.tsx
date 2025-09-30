@@ -1,6 +1,13 @@
 import type { Column, Row } from "@tanstack/react-table";
-import { ArrowDownAZ, FilePenLine, FileText, MoreHorizontal, Trash } from "lucide-react";
+import {
+  ArrowDownAZ,
+  FilePenLine,
+  FileText,
+  MoreHorizontal,
+  Trash,
+} from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import EmployeeSheet from "@/components/dashboard/employee-sheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,7 +18,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import WarningModal from "../warning-modal";
-import UserSheet from "./user-sheet";
 
 export type Employee = {
   id: string;
@@ -33,8 +39,9 @@ export type Employee = {
 const ActionsCell = ({ row }: { row: Row<Employee> }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [warn, setWarn] = useState<boolean>(false);
-  const [detail, setDetail] = useState<boolean>(false);
   const [selected, setSelected] = useState<string>("");
+
+  const navigate = useNavigate();
 
   return (
     <>
@@ -56,8 +63,8 @@ const ActionsCell = ({ row }: { row: Row<Employee> }) => {
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
-              setSelected(row.original.id);
-              setDetail(true);
+              navigate(`/user/${row.original.id}`);
+              // setDetail(true);
             }}
           >
             <FileText />
@@ -90,8 +97,6 @@ const ActionsCell = ({ row }: { row: Row<Employee> }) => {
         setOpen={setOpen}
         employee={row.original ?? undefined}
       />
-
-      <UserSheet id={selected} open={detail} setOpen={setDetail} employee={row.original ?? undefined} />
     </>
   );
 };
@@ -102,34 +107,46 @@ export const useRowColumns = () => {
       id: "employee_name",
       accessorFn: (row: Employee) => `${row.name}`,
       header: ({ column }: { column: Column<Employee> }) => (
-        <Button variant="ghost" type="button" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+        <Button
+          variant="ghost"
+          type="button"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
           Employee Name
           <ArrowDownAZ className="ml-2" />
         </Button>
       ),
       cell: ({ row }: { row: Row<Employee> }) => (
-        <span className="ml-3 flex cursor-pointer items-center gap-1 font-medium">{row.original.name || "N/A"}</span>
+        <span className="ml-3 flex cursor-pointer items-center gap-1 font-medium">
+          {row.original.name || "N/A"}
+        </span>
       ),
     },
     {
       accessorKey: "email",
       header: "Email",
       cell: ({ row }: { row: Row<Employee> }) => (
-        <span className="font-semibold text-[#71717A] text-sm">{row.getValue("email") || "N/A"}</span>
+        <span className="font-semibold text-[#71717A] text-sm">
+          {row.getValue("email") || "N/A"}
+        </span>
       ),
     },
     {
       accessorKey: "department",
       header: "Department",
       cell: ({ row }: { row: Row<Employee> }) => (
-        <span className="font-semibold text-[#71717A] text-sm">{row.getValue("department") || "N/A"}</span>
+        <span className="font-semibold text-[#71717A] text-sm">
+          {row.getValue("department") || "N/A"}
+        </span>
       ),
     },
     {
       accessorKey: "user_designation",
       header: "Designation",
       cell: ({ row }: { row: Row<Employee> }) => (
-        <span className="font-semibold text-[#71717A] text-sm">{row.getValue("user_designation") || "N/A"}</span>
+        <span className="font-semibold text-[#71717A] text-sm">
+          {row.getValue("user_designation") || "N/A"}
+        </span>
       ),
     },
     {
@@ -138,15 +155,27 @@ export const useRowColumns = () => {
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="w-[120px] justify-between font-semibold text-sm">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-[120px] justify-between font-semibold text-sm"
+              >
                 Status
                 <ArrowDownAZ className="ml-2" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
-              <DropdownMenuItem onClick={() => column.setFilterValue(undefined)}>All</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => column.setFilterValue(true)}>Candidate</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => column.setFilterValue(false)}>Employee</DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => column.setFilterValue(undefined)}
+              >
+                All
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => column.setFilterValue(true)}>
+                Candidate
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => column.setFilterValue(false)}>
+                Employee
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -156,7 +185,11 @@ export const useRowColumns = () => {
           {row.getValue("is_candidate") ? "Candidate" : "Employee"}
         </span>
       ),
-      filterFn: (row: Row<Employee>, id: string, value: boolean | undefined) => {
+      filterFn: (
+        row: Row<Employee>,
+        id: string,
+        value: boolean | undefined
+      ) => {
         if (value === undefined) return true;
         return row.getValue(id) === value;
       },
@@ -167,15 +200,8 @@ export const useRowColumns = () => {
       cell: ({ row }: { row: Row<Employee> }) => {
         const isRoleModel = row.getValue("is_role_model");
         return (
-          <Badge
-            variant="outline"
-            className={`w-1/2 px-3 ${
-              isRoleModel
-                ? "border-green-400 bg-green-400/20 text-green-600"
-                : "border-red-400 bg-red-500/20 text-destructive"
-            }`}
-          >
-            {isRoleModel ? "Accept" : "Reject"}
+          <Badge variant="outline" className="w-1/2 px-3">
+            {isRoleModel ? "Yes" : "- -"}
           </Badge>
         );
       },

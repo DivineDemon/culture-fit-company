@@ -1,4 +1,4 @@
-import { Building2, Download, Loader2, UserRound } from "lucide-react";
+import { Building2, Download, Loader2, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useRowColumns } from "@/components/dashboard/columns";
@@ -24,8 +24,8 @@ const Dashboard = () => {
           <span className="flex-1 text-left font-bold text-[32px] leading-[32px]">Employees</span>
           <div className="hidden flex-col gap-2.5 md:flex md:flex-row">
             <Button variant="default" size="sm" type="button" onClick={() => setOpen(true)}>
-              Add User &nbsp;
-              <UserRound />
+              Add Employee &nbsp;
+              <UserPlus />
             </Button>
             <Button variant="default" size="sm" type="button">
               Export as Excel &nbsp;

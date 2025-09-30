@@ -1,3 +1,4 @@
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -61,7 +62,7 @@ const Login = () => {
       </div>
 
       <Button className="w-full" variant="default" size="lg" type="submit" disabled={isLoading}>
-        {isLoading ? "Signing In..." : "Sign In with Email"}
+        {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign In with Email"}
       </Button>
     </form>
   );

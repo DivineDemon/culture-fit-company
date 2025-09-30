@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import MaxWidthWrapper from "./max-width-wrapper";
 import { ModeToggle } from "./mode-toggle";
-import UploadModal from "./shared/file-uploader";
 import { useTheme } from "./theme-provider";
 import { Button } from "./ui/button";
 import WarningModal from "./warning-modal";
@@ -21,11 +20,6 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const [logout, setLogout] = useState(false);
-  const [openUpload, setOpenUpload] = useState(false);
-
-  const handleUploadFiles = (files: File[]) => {
-    setOpenUpload(false);
-  };
 
   return (
     <>
@@ -52,7 +46,7 @@ const Navbar = () => {
                   </span>
                   Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setOpenUpload(true)}>
+                <DropdownMenuItem>
                   <span className="mr-2">
                     <Upload />
                   </span>
@@ -88,9 +82,6 @@ const Navbar = () => {
           void navigate("/");
         }}
       />
-
-      {/* Upload Doc Modal */}
-      <UploadModal open={openUpload} onClose={() => setOpenUpload(false)} onUpload={handleUploadFiles} />
     </>
   );
 };

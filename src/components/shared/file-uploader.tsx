@@ -41,7 +41,7 @@ const UploadModal = ({ open, onClose, onUpload, isLoading }: UploadModalProps) =
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="font-semibold text-lg">Upload Company Policy Files</DialogTitle>
         </DialogHeader>

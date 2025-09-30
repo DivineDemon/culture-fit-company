@@ -78,7 +78,7 @@ const UserSheet = ({ id, open, setOpen, employee }: UserSheetProps) => {
             </p>
           </div>
 
-          <div className="grid grid-cols-3 items-start gap-2 border-b pb-2">
+          {/* <div className="grid grid-cols-3 items-start gap-2 border-b pb-2">
             <Label className="text-muted-foreground text-sm">File(s)</Label>
             <div className="col-span-2 flex flex-col gap-1">
               {employee?.files && employee.files.length > 0 ? (
@@ -91,7 +91,7 @@ const UserSheet = ({ id, open, setOpen, employee }: UserSheetProps) => {
                 <p className="text-muted-foreground text-sm">No files uploaded</p>
               )}
             </div>
-          </div>
+          </div> */}
         </div>
       </SheetContent>
     </Sheet>

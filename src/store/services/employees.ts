@@ -66,7 +66,26 @@ export const employees = api.injectEndpoints({
       },
       transformResponse: (response: { data: Employees }) => response.data,
     }),
+    getEmployeebyId: build.query({
+      query: ({ companyId, id }: { companyId: string; id: string }) => ({
+        url: `/employees/company/${companyId}/${id}`,
+        method: "GET",
+      }),
+      transformResponse: (response: Employees) => response,
+    }),
+    getEmployeefiles: build.query({
+      query: ({ companyId, id }: { companyId: string; id: string }) => ({
+        url: `/employees/company/${companyId}/${id}/files`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
-export const { useGetEmployeesQuery, usePostEmployeeMutation, useUpdateEmployeeMutation } = employees;
+export const {
+  useGetEmployeesQuery,
+  usePostEmployeeMutation,
+  useUpdateEmployeeMutation,
+  useGetEmployeefilesQuery,
+  useGetEmployeebyIdQuery,
+} = employees;
