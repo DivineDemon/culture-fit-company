@@ -4,7 +4,6 @@ import {
   FilePenLine,
   FileText,
   MoreHorizontal,
-  Trash,
 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -17,7 +16,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import WarningModal from "../warning-modal";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store";
 
 export type Employee = {
   id: string;
@@ -38,8 +38,9 @@ export type Employee = {
 
 const ActionsCell = ({ row }: { row: Row<Employee> }) => {
   const [open, setOpen] = useState<boolean>(false);
-  const [warn, setWarn] = useState<boolean>(false);
+  // const [warn, setWarn] = useState<boolean>(false);
   const [selected, setSelected] = useState<string>("");
+  const { mode } = useSelector((state: RootState) => state.global);
 
   const navigate = useNavigate();
 
@@ -59,36 +60,37 @@ const ActionsCell = ({ row }: { row: Row<Employee> }) => {
             }}
           >
             <FilePenLine />
-            <span className="ml-2 text-sm">Edit Employee</span>
+            <span className="ml-2 text-sm">
+              Edit {mode === "employees" ? "Candidate" : "Employee"}
+            </span>
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
               navigate(`/user/${row.original.id}`);
-              // setDetail(true);
             }}
           >
             <FileText />
             <span className="ml-2 text-sm">View Details</span>
           </DropdownMenuItem>
 
-          <DropdownMenuItem
+          {/* <DropdownMenuItem
             onClick={() => {
               setSelected(row.original.id);
               setWarn(true);
             }}
           >
-            <Trash />
+            <Trash2 className="text-destructive" />
             <span className="ml-2 text-sm">Remove</span>
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <WarningModal
+      {/* <WarningModal
         open={warn}
         title="Are you sure?"
         text={<span>Are you sure you want to Remove this User?</span>}
         setOpen={setWarn}
-      />
+      /> */}
 
       <EmployeeSheet
         companyId={row.original.company_id}
@@ -151,48 +153,12 @@ export const useRowColumns = () => {
     },
     {
       accessorKey: "is_candidate",
-      header: ({ column }: { column: Column<Employee> }) => (
-        <div className="flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-[120px] justify-between font-semibold text-sm"
-              >
-                Status
-                <ArrowDownAZ className="ml-2" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
-              <DropdownMenuItem
-                onClick={() => column.setFilterValue(undefined)}
-              >
-                All
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => column.setFilterValue(true)}>
-                Candidate
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => column.setFilterValue(false)}>
-                Employee
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      ),
+      header: "Status",
       cell: ({ row }: { row: Row<Employee> }) => (
-        <span className="ml-3 font-semibold text-[#71717A] text-sm">
+        <span className="font-semibold text-[#71717A] text-sm">
           {row.getValue("is_candidate") ? "Candidate" : "Employee"}
         </span>
       ),
-      filterFn: (
-        row: Row<Employee>,
-        id: string,
-        value: boolean | undefined
-      ) => {
-        if (value === undefined) return true;
-        return row.getValue(id) === value;
-      },
     },
     {
       accessorKey: "is_role_model",

@@ -4,6 +4,7 @@ const initialState: GlobalState = {
   employee: "",
   token: "",
   id: "",
+  mode: "employees",
 };
 
 const globalSlice = createSlice({
@@ -19,8 +20,11 @@ const globalSlice = createSlice({
     setId: (state, action) => {
       state.id = action.payload;
     },
+    setMode: (state, action) => {
+      state.mode = action.payload as "employees" | "candidates";
+    }
   },
 });
 
-export const { setemployee, setToken, setId } = globalSlice.actions;
+export const { setemployee, setToken, setId, setMode } = globalSlice.actions;
 export default globalSlice.reducer;

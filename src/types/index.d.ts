@@ -2,6 +2,7 @@ declare type GlobalState = {
   employee: null | any;
   token: string;
   id: string;
+  mode: "employees" | "candidates";
 }
 
 declare type PostLogin = {

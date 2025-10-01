@@ -14,12 +14,26 @@ import { ModeToggle } from "./mode-toggle";
 import { useTheme } from "./theme-provider";
 import { Button } from "./ui/button";
 import WarningModal from "./warning-modal";
+import { Switch } from "./ui/switch";
+import type { RootState } from "@/store";
+import { useSelector, useDispatch } from "react-redux";
+import { setMode } from "@/store/slices/global";
 
 const Navbar = () => {
   const { theme } = useTheme();
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
   const [logout, setLogout] = useState(false);
+  const { mode } = useSelector((state: RootState) => state.global);
+
+
+   const toggleValidationMode = () => {
+    if (mode === "employees") {
+      dispatch(setMode("candidates"));
+    } else {
+      dispatch(setMode("employees"));
+    }
+  };
 
   return (
     <>
@@ -33,9 +47,22 @@ const Navbar = () => {
           />
 
           <div className="flex items-center justify-center gap-2.5">
+            <div className="flex items-center gap-2.5  justify-center pr-3">
+              <span className="text-muted-foreground text-xs font-medium">
+                Employees
+              </span>
+              <Switch
+                checked={mode === "employees"}
+                onCheckedChange={toggleValidationMode}
+              />
+              <span className="text-muted-foreground text-xs font-medium">
+                Candidates
+              </span>
+            </div>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="outline" size="icon">
                   <EllipsisVertical className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
@@ -66,7 +93,6 @@ const Navbar = () => {
         </MaxWidthWrapper>
       </nav>
 
-      {/* Logout Modal */}
       <WarningModal
         open={logout}
         title="Are you Sure"
