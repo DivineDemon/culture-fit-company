@@ -8,6 +8,7 @@ export const employees = api.injectEndpoints({
         method: "GET",
       }),
     }),
+
     postEmployee: build.mutation<Employees, { companyId: string; data: Employees }>({
       query: ({ companyId, data }) => {
         const formData = new FormData();
@@ -37,6 +38,7 @@ export const employees = api.injectEndpoints({
       },
       transformResponse: (response: { data: Employees }) => response.data,
     }),
+
     updateEmployee: build.mutation<Employees, { companyId: string; data: Employees; id: string }>({
       query: ({ companyId, data, id }) => {
         const formData = new FormData();
@@ -66,6 +68,7 @@ export const employees = api.injectEndpoints({
       },
       transformResponse: (response: { data: Employees }) => response.data,
     }),
+
     getEmployeebyId: build.query({
       query: ({ companyId, id }: { companyId: string; id: string }) => ({
         url: `/employees/company/${companyId}/${id}`,
@@ -73,12 +76,14 @@ export const employees = api.injectEndpoints({
       }),
       transformResponse: (response: Employees) => response,
     }),
+
     getEmployeefiles: build.query({
       query: ({ companyId, id }: { companyId: string; id: string }) => ({
         url: `/employees/company/${companyId}/${id}/files`,
         method: "GET",
       }),
     }),
+
   }),
 });
 

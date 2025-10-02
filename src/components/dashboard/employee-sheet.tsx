@@ -89,7 +89,6 @@ const EmployeeSheet = ({
         if ("data" in response) {
           toast.success("Employee Created Successfully!");
           setOpen(false);
-          window.location.reload();
           return;
         } else {
           toast.error("Something went wrong, Please try again!");

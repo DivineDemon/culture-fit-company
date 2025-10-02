@@ -8,7 +8,7 @@ export const employeeSchema = z.object({
 
   email: z.string().email("Invalid email"),
 
-  password: z.string().min(8, "Password must be at least 8 characters").nullable().optional(),
+  password: z.string().min(6, "Password must be at least 6 characters").nullable().optional(),
 
   user_designation: z
     .string()
