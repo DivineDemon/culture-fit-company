@@ -1,4 +1,4 @@
-import { Building2, Download, Loader2, UserPlus } from "lucide-react";
+import { Download, Loader2, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useRowColumns } from "@/components/dashboard/columns";
@@ -16,10 +16,7 @@ const Dashboard = () => {
   const { mode } = useSelector((state: RootState) => state.global);
 
   const id = useSelector((state: RootState) => state.global.id);
-  const { data: employee, isLoading: isLoadingEmployee } = useGetEmployeesQuery(
-    id!,
-    { skip: !id }
-  );
+  const { data: employee, isLoading: isLoadingEmployee } = useGetEmployeesQuery(id!, { skip: !id });
 
   return (
     <>
@@ -29,12 +26,7 @@ const Dashboard = () => {
             {mode === "employees" ? "Candidates" : "Employees"}
           </span>
           <div className="hidden flex-col gap-2.5 md:flex md:flex-row">
-            <Button
-              variant="default"
-              size="sm"
-              type="button"
-              onClick={() => setOpen(true)}
-            >
+            <Button variant="default" size="sm" type="button" onClick={() => setOpen(true)}>
               Add {mode === "employees" ? "Candidates" : "Employees"} &nbsp;
               <UserPlus />
             </Button>
@@ -44,13 +36,8 @@ const Dashboard = () => {
             </Button>
           </div>
           <div className="flex gap-2.5 md:hidden">
-            <Button
-              variant="default"
-              size="icon"
-              type="button"
-              onClick={() => setOpen(true)}
-            >
-              <Building2 />
+            <Button variant="default" size="icon" type="button" onClick={() => setOpen(true)}>
+              <UserPlus />
             </Button>
             <Button variant="default" size="icon" type="button">
               <Download />
@@ -61,9 +48,7 @@ const Dashboard = () => {
           <Input
             type="text"
             className="w-1/3"
-            placeholder={`Filter ${
-              mode === "employees" ? "Candidates" : "Employees"
-            } by Email...`}
+            placeholder={`Filter ${mode === "employees" ? "Candidates" : "Employees"} by Email...`}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -76,14 +61,9 @@ const Dashboard = () => {
               columns={columns}
               data={
                 employee
-                  ?.filter(
-                    (e: { email: string; is_candidate: boolean }) =>
-                      e.is_candidate === (mode === "employees") 
-                  )
+                  ?.filter((e: { email: string; is_candidate: boolean }) => e.is_candidate === (mode === "employees"))
                   .filter((e: { email: string }) =>
-                    search
-                      ? e.email.toLowerCase().includes(search.toLowerCase())
-                      : true
+                    search ? e.email.toLowerCase().includes(search.toLowerCase()) : true,
                   ) || []
               }
             />

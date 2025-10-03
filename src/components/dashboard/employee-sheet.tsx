@@ -2,34 +2,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { useForm } from "react-hook-form";
+import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import type z from "zod";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { employeeSchema } from "@/lib/form-schemas";
-import {
-  usePostEmployeeMutation,
-  useUpdateEmployeeMutation,
-} from "@/store/services/employees";
+import type { RootState } from "@/store";
+import { usePostEmployeeMutation, useUpdateEmployeeMutation } from "@/store/services/employees";
 import { Switch } from "../ui/switch";
 import type { Employee } from "./columns";
-import { useSelector } from "react-redux";
-import type { RootState } from "@/store";
 
 interface EmployeeSheetProps {
   id?: string;
@@ -39,21 +23,12 @@ interface EmployeeSheetProps {
   companyId: string;
 }
 
-const EmployeeSheet = ({
-  id,
-  open,
-  setOpen,
-  employee,
-  companyId,
-}: EmployeeSheetProps) => {
-
+const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheetProps) => {
   const { mode } = useSelector((state: RootState) => state.global);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
-  const [postEmployee, { isLoading: isLoadingPost }] =
-    usePostEmployeeMutation();
-  const [updateEmployee, { isLoading: isLoadingUpdate }] =
-    useUpdateEmployeeMutation();
+  const [postEmployee, { isLoading: isLoadingPost }] = usePostEmployeeMutation();
+  const [updateEmployee, { isLoading: isLoadingUpdate }] = useUpdateEmployeeMutation();
 
   const form = useForm<z.infer<typeof employeeSchema>>({
     resolver: zodResolver(employeeSchema),
@@ -67,8 +42,9 @@ const EmployeeSheet = ({
       is_role_model: data.is_role_model ?? false,
       is_candidate: data.is_candidate ?? false,
       ...data,
-      files: uploadedFile ? [uploadedFile].map((file) => file.name) : [],
+      salary: data.salary ?? 0,
       password: data.password ?? "",
+      files: [],
     };
 
     try {
@@ -136,7 +112,10 @@ const EmployeeSheet = ({
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>{id ? "Edit" : "Add"}{ mode === "employees" ? " Candidate" :  " Employee"}</SheetTitle>
+          <SheetTitle>
+            {id ? "Edit" : "Add"}
+            {mode === "employees" ? " Candidate" : " Employee"}
+          </SheetTitle>
           <SheetDescription>
             {id
               ? `Update ${mode === "employees" ? "candidate" : "employee"} details`
@@ -145,10 +124,7 @@ const EmployeeSheet = ({
         </SheetHeader>
 
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="flex h-full flex-col gap-5 overflow-auto px-4 pb-6"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex h-full flex-col gap-5 overflow-auto px-4 pb-6">
             {/* Name */}
             <FormField
               control={form.control}
@@ -156,10 +132,10 @@ const EmployeeSheet = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    Full Name<span className="text-destructive">*</span>
+                    Name<span className="text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="John Doe" {...field} />
+                    <Input placeholder="Enter name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -176,11 +152,7 @@ const EmployeeSheet = ({
                     Email<span className="text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="john@example.com"
-                      {...field}
-                    />
+                    <Input placeholder="Enter email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -197,13 +169,7 @@ const EmployeeSheet = ({
                     Password<span className="text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="******"
-                      {...field}
-                      onChange={(e) => field.onChange(e.target.value)}
-                      value={field.value || ""}
-                    />
+                    <Input type="password" placeholder="Enter password" {...field} value={field.value as string} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -220,7 +186,7 @@ const EmployeeSheet = ({
                     Designation<span className="text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Software Engineer" {...field} />
+                    <Input placeholder="Enter designation" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -237,24 +203,24 @@ const EmployeeSheet = ({
                     Department<span className="text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Engineering" {...field} />
+                    <Input placeholder="Enter department" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            {/* Phone */}
+            {/* Phone Number */}
             <FormField
               control={form.control}
               name="user_phone_number"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    Contact Number<span className="text-destructive">*</span>
+                    Phone Number<span className="text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="+1234567890" {...field} />
+                    <Input placeholder="Enter phone number" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -282,16 +248,9 @@ const EmployeeSheet = ({
               name="salary"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
-                    Salary<span className="text-destructive">*</span>
-                  </FormLabel>
+                  <FormLabel>Salary</FormLabel>
                   <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="50000"
-                      {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                    />
+                    <Input type="number" placeholder="Enter salary" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -301,40 +260,34 @@ const EmployeeSheet = ({
             {/* Candidate Switch */}
             {mode === "employees" && (
               <FormField
-              control={form.control}
-              name="is_candidate"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-2">
-                  <FormLabel>Is Candidate?</FormLabel>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                control={form.control}
+                name="is_candidate"
+                render={({ field }) => (
+                  <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                    <FormLabel className="text-base">Is Candidate?</FormLabel>
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
             )}
 
             {/* Role Model Switch */}
-            <FormField
-              control={form.control}
-              name="is_role_model"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-2">
-                  <FormLabel>Is Role Model?</FormLabel>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {mode === "candidates" && (
+              <FormField
+                control={form.control}
+                name="is_role_model"
+                render={({ field }) => (
+                  <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                    <FormLabel className="text-base">Is Role Model?</FormLabel>
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            )}
 
             {/* File Uploader */}
             <div className="flex flex-col gap-2">
@@ -345,32 +298,23 @@ const EmployeeSheet = ({
               >
                 <input {...getInputProps()} />
                 {uploadedFile ? (
-                  <span className="font-medium text-base text-primary">
-                    {uploadedFile.name}
-                  </span>
+                  <span className="font-medium text-base text-primary">{uploadedFile.name}</span>
                 ) : isDragActive ? (
-                  <span className="font-medium text-base">
-                    Drop the file here...
-                  </span>
+                  <span className="font-medium text-base">Drop the file here...</span>
                 ) : (
                   <>
-                    <span className="font-medium text-base">
-                      Drag & Drop your file here
-                    </span>
-                    <span className="text-muted-foreground text-sm">
-                      or click to browse
-                    </span>
+                    <span className="font-medium text-base">Drag & Drop your file here</span>
+                    <span className="text-muted-foreground text-sm">or click to browse</span>
                   </>
                 )}
               </div>
             </div>
 
-            <Button
-              type="submit"
-              className="mt-auto w-full"
-              disabled={isLoadingPost || isLoadingUpdate}
-            >
-              {id ? "Update Employee" : "Add Employee"}
+            {/* Submit Button */}
+            <Button type="submit" className="mt-auto w-full" disabled={isLoadingPost || isLoadingUpdate}>
+              {id
+                ? `Update ${mode === "employees" ? "Candidate" : "Employee"}`
+                : `Add ${mode === "employees" ? "Candidate" : "Employee"}`}
             </Button>
           </form>
         </Form>

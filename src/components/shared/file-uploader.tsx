@@ -1,9 +1,9 @@
 import { X } from "lucide-react";
 import { useState } from "react";
 import { useDropzone } from "react-dropzone";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Badge } from "../ui/badge";
 
 interface UploadModalProps {
   open: boolean;
@@ -41,7 +41,7 @@ const UploadModal = ({ open, onClose, onUpload, isLoading }: UploadModalProps) =
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="font-semibold text-lg">Upload Company Policy Files</DialogTitle>
         </DialogHeader>

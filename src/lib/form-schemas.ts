@@ -24,7 +24,7 @@ export const employeeSchema = z.object({
 
   date_of_birth: z.string().min(2, "Date of birth is required"),
 
-  salary: z.number().min(0, "Salary must be a positive number"),
+  salary: z.number().min(0, "Salary must be a positive number").optional(),
 
   is_candidate: z.boolean().default(false).optional(),
   is_role_model: z.boolean().default(false).optional(),

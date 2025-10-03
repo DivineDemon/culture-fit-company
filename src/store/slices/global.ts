@@ -22,7 +22,7 @@ const globalSlice = createSlice({
     },
     setMode: (state, action) => {
       state.mode = action.payload as "employees" | "candidates";
-    }
+    },
   },
 });
 

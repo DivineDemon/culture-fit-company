@@ -2,25 +2,34 @@ import { Loader2, Upload, UserPen, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import EmployeeSheet from "@/components/dashboard/employee-sheet";
+import { ChartBarDefault } from "@/components/shared/chart-bar";
+import UploadModal from "@/components/shared/file-uploader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import type { RootState } from "@/store";
 import { useGetEmployeebyIdQuery } from "@/store/services/employees";
+import Documents from "@/components/dashboard/User-Documents";
 
 const UserDetails = () => {
-  const [_open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const { id } = useParams<{ id: string }>();
-  const [_uploadOpen, setUploadOpen] = useState(false);
+  const [uploadOpen, setUploadOpen] = useState(false);
   const companyId = useSelector((state: RootState) => state.global.id);
   const { data: employee, isLoading } = useGetEmployeebyIdQuery({
     companyId,
     id: id!,
   });
 
+  const handleUpload = (files: File[]) => {
+    if (!files.length) return;
+    setUploadOpen(false);
+  };
+
   if (isLoading) {
     return (
-      <div className="flex h-full w-full items-center justify-center">
+      <div className="flex h-screen w-full items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
@@ -91,6 +100,23 @@ const UserDetails = () => {
           </div>
         </CardContent>
       </Card>
+
+      <div className="flex h-full flex-col gap-5 md:grid md:grid-cols-2">
+        <div className="order-1 lg:order-2">
+          <Documents />
+        </div>
+
+        <div className="order-1 flex h-full flex-col gap-5 rounded-xl border p-4 md:order-2 md:col-span-1">
+          <div className="flex flex-col gap-3 lg:w-1/2">
+            <Label className="font-semibold text-primary text-xl">Chat Results</Label>
+            <ChartBarDefault />
+          </div>
+        </div>
+      </div>
+
+      <EmployeeSheet open={open} setOpen={setOpen} employee={employee} id={id} companyId={companyId} />
+
+      <UploadModal open={uploadOpen} onClose={() => setUploadOpen(false)} onUpload={handleUpload} />
     </div>
   );
 };

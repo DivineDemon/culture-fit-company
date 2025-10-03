@@ -1,5 +1,6 @@
-import { EllipsisVertical, LogOut, Upload, User2 } from "lucide-react";
+import { EllipsisVertical, LogOut, User2 } from "lucide-react";
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Logo from "@/assets/img/logo.jpg";
 import LogoBlack from "@/assets/img/logo-black.jpg";
@@ -9,15 +10,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { RootState } from "@/store";
+import { setMode } from "@/store/slices/global";
 import MaxWidthWrapper from "./max-width-wrapper";
 import { ModeToggle } from "./mode-toggle";
 import { useTheme } from "./theme-provider";
 import { Button } from "./ui/button";
-import WarningModal from "./warning-modal";
 import { Switch } from "./ui/switch";
-import type { RootState } from "@/store";
-import { useSelector, useDispatch } from "react-redux";
-import { setMode } from "@/store/slices/global";
+import WarningModal from "./warning-modal";
 
 const Navbar = () => {
   const { theme } = useTheme();
@@ -26,8 +26,7 @@ const Navbar = () => {
   const [logout, setLogout] = useState(false);
   const { mode } = useSelector((state: RootState) => state.global);
 
-
-   const toggleValidationMode = () => {
+  const toggleValidationMode = () => {
     if (mode === "employees") {
       dispatch(setMode("candidates"));
     } else {
@@ -47,17 +46,15 @@ const Navbar = () => {
           />
 
           <div className="flex items-center justify-center gap-2.5">
-            <div className="flex items-center gap-2.5  justify-center pr-3">
-              <span className="text-muted-foreground text-xs font-medium">
-                Employees
-              </span>
-              <Switch
-                checked={mode === "employees"}
-                onCheckedChange={toggleValidationMode}
-              />
-              <span className="text-muted-foreground text-xs font-medium">
-                Candidates
-              </span>
+            <div className="hidden items-center justify-center gap-2.5 pr-3 md:flex">
+              <span className="font-medium text-muted-foreground text-xs">Employees</span>
+              <Switch checked={mode === "employees"} onCheckedChange={toggleValidationMode} />
+              <span className="font-medium text-muted-foreground text-xs">Candidates</span>
+            </div>
+
+            <div className="flex items-center justify-center gap-2.5 md:hidden">
+              <span className="font-medium text-muted-foreground text-sm">Candidates</span>
+              <Switch checked={mode === "employees"} onCheckedChange={toggleValidationMode} />
             </div>
 
             <DropdownMenu>
@@ -72,12 +69,6 @@ const Navbar = () => {
                     <User2 />
                   </span>
                   Profile
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <span className="mr-2">
-                    <Upload />
-                  </span>
-                  Upload Documents
                 </DropdownMenuItem>
                 <DropdownMenuItem className="" onClick={() => setLogout(true)}>
                   <span className="mr-2">
