@@ -1,145 +1,312 @@
-import { Briefcase, Globe, MapPin, Pencil } from "lucide-react";
-import { useRef, useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Briefcase, Globe, Loader2, MapPin } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { useSelector } from "react-redux";
+import { toast } from "sonner";
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-const companyProfile = {
-  name: "Digimark Developers",
-  industry: "Software Development",
-  location: "San Francisco, CA",
-  website: "https://digimark.com",
-  description:
-    "Digimark Developers is a leading software development company specializing in innovative digital solutions for businesses worldwide.",
-  logo: "/company-logo.png",
-  tags: ["Innovation", "Remote Friendly", "Growth"],
-};
+import { Textarea } from "@/components/ui/textarea";
+import { companySchema } from "@/lib/form-schemas";
+import type { RootState } from "@/store";
+import {
+  useGetCompanyQuery,
+  useUpdateCompanyMutation,
+} from "@/store/services/company";
+import CulturePolicies from "@/components/shared/company-policy";
 
 const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState(companyProfile);
+  const companyId = useSelector((state: RootState) => state.global.id);
 
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const { data, isLoading } = useGetCompanyQuery(companyId, {
+    refetchOnMountOrArgChange: true,
+  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
-  };
+  const [updateCompany, { isLoading: isUpdating }] = useUpdateCompanyMutation();
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const imageUrl = URL.createObjectURL(file);
-      setFormData((prev) => ({ ...prev, logo: imageUrl }));
+  const form = useForm<z.infer<typeof companySchema>>({
+    resolver: zodResolver(companySchema),
+    defaultValues: {
+      company_name: "",
+      company_email: "",
+      owner_name: "",
+      owner_email: "",
+      company_website: "",
+      company_type: "",
+      phone_number: "",
+      company_address: "",
+      company_description: "",
+    },
+  });
+
+  useEffect(() => {
+    if (data) {
+      form.reset({
+        company_name: data.company_name ?? "",
+        company_email: data.company_email ?? "",
+        owner_name: data.owner_name ?? "",
+        owner_email: data.owner_email ?? "",
+        company_website: data.company_website ?? "",
+        company_type: data.company_type ?? "",
+        phone_number: data.phone_number ?? "",
+        company_address: data.company_address ?? "",
+        company_description: data.company_description ?? "",
+      });
+    }
+  }, [data, form]);
+
+  const onSubmit = async (values: z.infer<typeof companySchema>) => {
+    if (!companyId) return;
+
+    try {
+      const response = await updateCompany({
+        id: companyId,
+        data: {
+          id: "",
+          company_name: values.company_name ?? "",
+          company_email: values.company_email ?? "",
+          owner_name: values.owner_name ?? "",
+          owner_email: values.owner_email ?? "",
+          company_website: values.company_website ?? "",
+          company_type: values.company_type ?? "",
+          phone_number: values.phone_number ?? "",
+          company_address: values.company_address ?? "",
+          company_description: values.company_description ?? "",
+        },
+      });
+      if (!response) {
+        toast.success("Company updated successfully!");
+        setIsEditing(false);
+      }
+    } catch (error) {
+      const err = error as { data?: { message?: string } };
+      toast.error(
+        err.data?.message || "Something went wrong. Please try again!"
+      );
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <Loader2 className="size-10 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
-    <div className="h-full w-full bg-gradient-to-b from-background to-muted/30 px-6 py-10">
+    <div className="h-full w-full overflow-auto bg-gradient-to-b from-background to-muted/30 px-6 py-10 rounded-lg">
       <div className="flex flex-col items-center gap-6 border-b pb-8 sm:flex-row sm:items-start">
-        <div className="relative">
-          <Avatar className="h-28 w-28 ring-4 ring-primary/20">
-            <AvatarImage src={formData.logo} alt={formData.name} />
-            <AvatarFallback className="font-bold text-xl">
-              {formData.name
-                .split(" ")
-                .map((w) => w[0])
-                .join("")}
-            </AvatarFallback>
-          </Avatar>
-
-          {isEditing && (
-            <>
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="absolute right-1 bottom-1 rounded-full bg-primary p-1 text-white shadow hover:bg-primary/90"
-              >
-                <Pencil className="h-4 w-4" />
-              </button>
-              <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
-            </>
-          )}
-        </div>
-
-        <div className="flex-1 space-y-3 text-center sm:text-left">
-          <h1 className="font-bold text-3xl">{formData.name}</h1>
-          <p className="max-w-2xl text-muted-foreground">{formData.description}</p>
-          <div className="flex flex-wrap justify-center gap-2 sm:justify-start">
-            {formData.tags.map((tag) => (
-              <Badge key={tag} variant="secondary">
-                {tag}
-              </Badge>
-            ))}
+        <div className="flex w-full flex-col gap-3 text-center sm:text-left">
+          <div>
+            <h1 className="font-bold text-3xl text-primary">
+              {data?.company_name}
+            </h1>
+            <span className="pb-4 text-primary">
+              {data?.company_email || "—"}
+            </span>
           </div>
+          <p className="max-w-2xl text-muted-foreground">
+            {data?.company_description || "No description available"}
+          </p>
         </div>
 
         <div className="flex gap-3 self-center sm:self-start">
-          <Button variant={isEditing ? "outline" : "default"} size="lg" onClick={() => setIsEditing((prev) => !prev)}>
+          <Button
+            variant={isEditing ? "outline" : "default"}
+            size="lg"
+            onClick={() => setIsEditing((prev) => !prev)}
+          >
             {isEditing ? "Cancel" : "Edit Profile"}
           </Button>
         </div>
       </div>
 
-      <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label className="text-muted-foreground text-sm">Industry</Label>
-          {isEditing ? (
-            <Input id="industry" value={formData.industry} onChange={handleChange} />
-          ) : (
+      {isEditing ? (
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2"
+          >
+            <FormField
+              control={form.control}
+              name="owner_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Owner Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter company type" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="owner_email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Owner Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter company type" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="company_type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Industry</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter company type" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="company_address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Location</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter company address" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="company_website"
+              render={({ field }) => (
+                <FormItem className="sm:col-span-2">
+                  <FormLabel>Website</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter company website" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="company_description"
+              render={({ field }) => (
+                <FormItem className="sm:col-span-2">
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Write about your company..."
+                      className="min-h-[100px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="col-span-2 flex w-full items-end justify-end">
+              <Button type="submit" disabled={isUpdating} className="">
+                {isUpdating && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                Save Changes
+              </Button>
+            </div>
+          </form>
+        </Form>
+      ) : (
+        <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="flex flex-col rounded-lg border p-4 shadow gap-2">
+            <Label className="text-muted-foreground text-sm">
+              Company Email
+            </Label>
             <div className="flex items-center gap-2 font-medium">
               <Briefcase className="h-4 w-4 text-primary" />
-              {formData.industry}
+              {data?.company_email || "—"}
             </div>
-          )}
-        </div>
-        <div className="space-y-2">
-          <Label className="text-muted-foreground text-sm">Location</Label>
-          {isEditing ? (
-            <Input id="location" value={formData.location} onChange={handleChange} />
-          ) : (
+          </div>
+          <div className="flex flex-col rounded-lg border p-4 shadow gap-2">
+            <Label className="text-muted-foreground text-sm">Owner Name</Label>
             <div className="flex items-center gap-2 font-medium">
+              <Briefcase className="h-4 w-4 text-primary" />
+              {data?.owner_name || "—"}
+            </div>
+          </div>
+          <div className="flex flex-col rounded-lg border p-4 shadow gap-2">
+            <Label className="text-muted-foreground text-sm">Owner Email</Label>
+            <div className="flex items-center gap-2 font-medium text-[16px]">
+              <Briefcase className="h-4 w-4 text-primary" />
+              {data?.owner_email || "—"}
+            </div>
+          </div>
+          <div className="flex flex-col rounded-lg border p-4 shadow gap-2">
+            <Label className="text-muted-foreground text-sm">Industry</Label>
+            <div className="flex items-center gap-2 font-medium text-[16px]">
+              <Briefcase className="h-4 w-4 text-primary" />
+              {data?.company_type || "—"}
+            </div>
+          </div>
+
+          <div className="flex flex-col rounded-lg border p-4 shadow gap-2">
+            <Label className="text-muted-foreground text-sm">Location</Label>
+            <div className="flex items-center gap-2 font-medium text-[16px]">
               <MapPin className="h-4 w-4 text-primary" />
-              {formData.location}
+              {data?.company_address || "—"}
             </div>
-          )}
-        </div>
-        <div className="space-y-2 sm:col-span-2">
-          <Label className="text-muted-foreground text-sm">Website</Label>
-          {isEditing ? (
-            <Input id="website" value={formData.website} onChange={handleChange} />
-          ) : (
-            <div className="flex items-center gap-2 font-medium">
+          </div>
+
+          <div className="flex flex-col rounded-lg border p-4 shadow gap-2">
+            <Label className="text-muted-foreground text-sm">Website</Label>
+            <div className="flex items-center gap-2 font-medium text-[16px]">
               <Globe className="h-4 w-4 text-primary" />
-              <a href={formData.website} target="_blank" rel="noopener noreferrer" className="text-primary underline">
-                {formData.website}
-              </a>
+              {data?.company_website ? (
+                <a
+                  href={data.company_website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline"
+                >
+                  {data.company_website}
+                </a>
+              ) : (
+                "—"
+              )}
             </div>
-          )}
-        </div>
-      </div>
+          </div>
 
-      <div className="mt-8 space-y-2">
-        <Label className="text-muted-foreground text-sm">Description</Label>
-        {isEditing ? (
-          <Input id="description" value={formData.description} onChange={handleChange} />
-        ) : (
-          <p className="text-muted-foreground">{formData.description}</p>
-        )}
-      </div>
-
-      {isEditing && (
-        <div className="mt-6">
-          <Button onClick={() => setIsEditing(false)}>Save Changes</Button>
+          <div className="flex flex-col rounded-lg border p-4 shadow gap-2 sm:col-span-2">
+            <Label className="text-muted-foreground text-sm">Description</Label>
+            <p className="flex items-center gap-2 font-medium text-[16px]">
+              {data?.company_description || "No description provided"}
+            </p>
+          </div>
         </div>
       )}
 
-      {/* <UploadModal
-        open={openUpload}
-        onClose={() => setOpenUpload(false)}
-        // onUpload={handleUploadFiles}
-      /> */}
+      <div className="pt-8 h-fit">
+        <CulturePolicies />
+      </div>
     </div>
   );
 };

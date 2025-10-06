@@ -7,31 +7,26 @@ export const employees = api.injectEndpoints({
         url: `/employees/company/${id}`,
         method: "GET",
       }),
+      providesTags: ["employees"],
     }),
 
-    postEmployee: build.mutation<Employees, { companyId: string; data: Employees }>({
-      query: ({ companyId, data }) => {
-        return {
-          url: `/employees/company/${companyId}`,
-          method: "POST",
-          body: data,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        };
-      },
+    postEmployee: build.mutation({
+      query: ({ companyId, data }: { companyId: string; data: Employees }) => ({
+        url: `/employees/company/${companyId}`,
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["employees"],
       transformResponse: (response: { data: Employees }) => response.data,
     }),
 
-    updateEmployee: build.mutation<Employees, { companyId: string; data: Employees; id: string }>({
-      query: ({ companyId, data, id }) => ({
+    updateEmployee: build.mutation({
+      query: ({ companyId, data, id }: { companyId: string; data: Employees; id: string }) => ({
         url: `/employees/company/${companyId}/${id}`,
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: data,
       }),
+      invalidatesTags: ["employees"],
       transformResponse: (response: { data: Employees }) => response.data,
     }),
 
@@ -40,6 +35,7 @@ export const employees = api.injectEndpoints({
         url: `/employees/company/${companyId}/${id}`,
         method: "GET",
       }),
+      providesTags: ["employees"],
       transformResponse: (response: Employees) => response,
     }),
 
@@ -48,6 +44,7 @@ export const employees = api.injectEndpoints({
         url: `/employees/company/${companyId}/${id}/files`,
         method: "GET",
       }),
+      providesTags: ["files"],
     }),
   }),
 });

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import EmployeeSheet from "@/components/dashboard/employee-sheet";
+import Documents from "@/components/dashboard/user-documents";
 import { ChartBarDefault } from "@/components/shared/chart-bar";
 import UploadModal from "@/components/shared/file-uploader";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import type { RootState } from "@/store";
 import { useGetEmployeebyIdQuery } from "@/store/services/employees";
-import Documents from "@/components/dashboard/User-Documents";
 
 const UserDetails = () => {
   const [open, setOpen] = useState(false);
@@ -36,7 +36,7 @@ const UserDetails = () => {
   }
 
   return (
-    <div className="flex h-full w-full flex-col gap-4">
+    <div className="flex h-full w-full flex-col gap-4 overflow-auto">
       <div className="flex items-center justify-between">
         <Label className="font-bold text-primary text-xl sm:text-2xl md:text-3xl">{employee?.name || "N/A"}</Label>
         <div className="hidden flex-col gap-2.5 md:flex md:flex-row">
@@ -107,16 +107,22 @@ const UserDetails = () => {
         </div>
 
         <div className="order-1 flex h-full flex-col gap-5 rounded-xl border p-4 md:order-2 md:col-span-1">
-          <div className="flex flex-col gap-3 lg:w-1/2">
+          <div className="flex flex-col gap-3">
             <Label className="font-semibold text-primary text-xl">Chat Results</Label>
             <ChartBarDefault />
           </div>
         </div>
       </div>
 
-      <EmployeeSheet open={open} setOpen={setOpen} employee={employee} id={id} companyId={companyId} />
+      <EmployeeSheet open={open} setOpen={setOpen} employee={employee} id={id} companyId={id ?? ""} />
 
-      <UploadModal open={uploadOpen} onClose={() => setUploadOpen(false)} onUpload={handleUpload} />
+      <UploadModal
+        open={uploadOpen}
+        onClose={() => setUploadOpen(false)}
+        onUpload={handleUpload}
+        companyId={id ?? ""}
+        // employeeId={id!}
+      />
     </div>
   );
 };

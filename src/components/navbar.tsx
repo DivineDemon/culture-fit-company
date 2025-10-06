@@ -52,11 +52,6 @@ const Navbar = () => {
               <span className="font-medium text-muted-foreground text-xs">Candidates</span>
             </div>
 
-            <div className="flex items-center justify-center gap-2.5 md:hidden">
-              <span className="font-medium text-muted-foreground text-sm">Candidates</span>
-              <Switch checked={mode === "employees"} onCheckedChange={toggleValidationMode} />
-            </div>
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="icon">
@@ -64,17 +59,21 @@ const Navbar = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem className="md:hidden">
+                  <span className="font-medium text-muted-foreground text-sm">Candidates</span>
+                  <Switch checked={mode === "employees"} onCheckedChange={toggleValidationMode} />
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/profile")}>
-                  <span className="mr-2">
-                    <User2 />
-                  </span>
-                  Profile
+                  <Button variant="outline" size="lg" className="w-full">
+                    <User2 className="mr-3 text-white" />
+                    Profile
+                  </Button>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="" onClick={() => setLogout(true)}>
-                  <span className="mr-2">
-                    <LogOut />
-                  </span>
-                  Logout
+                  <Button variant="destructive" size="lg" className="w-full">
+                    <LogOut className="mr-2 text-white" />
+                    Logout
+                  </Button>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

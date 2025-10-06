@@ -1,6 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { toast } from "sonner";
-import type { RootState } from "..";
+import type { RootState } from "@/types/global";
 
 const baseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_BASE_API_URL as string,
@@ -16,11 +15,11 @@ const baseQuery = fetchBaseQuery({
 const baseQueryWith401Handling: typeof baseQuery = async (args, api, extraOptions) => {
   const result = await baseQuery(args, api, extraOptions);
 
-  if (result.error?.status === 401 || result.error?.status === 403 || result.error?.status === 500) {
-    localStorage.clear();
-    window.location.replace("/");
-    toast.error("Session Expired! Please Login Again.");
-  }
+  // if (result.error?.status === 401 || result.error?.status === 403 || result.error?.status === 500) {
+  //   localStorage.clear();
+  //   window.location.replace("/");
+  //   toast.error("Session Expired! Please Login Again.");
+  // }
 
   return result;
 };
@@ -28,17 +27,7 @@ const baseQueryWith401Handling: typeof baseQuery = async (args, api, extraOption
 export const api = createApi({
   baseQuery: baseQueryWith401Handling,
   keepUnusedDataFor: 5,
-  tagTypes: [
-    "User",
-    "consolidation",
-    "Supplier",
-    "Suppliers",
-    "Competitor",
-    "Competitors",
-    "Product",
-    "Products",
-    "AI",
-  ],
+  tagTypes: ["employees", "candidates", "files", "companies", "policies"],
   endpoints: (build) => ({
     healthCheck: build.query({
       query: () => ({

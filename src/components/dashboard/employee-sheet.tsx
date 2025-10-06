@@ -32,6 +32,17 @@ const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheet
 
   const form = useForm<z.infer<typeof employeeSchema>>({
     resolver: zodResolver(employeeSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      user_designation: "",
+      department: "",
+      user_phone_number: "",
+      date_of_birth: "",
+      salary: 0,
+      is_role_model: false,
+      is_candidate: false,
+    },
   });
 
   const onSubmit = async (data: z.infer<typeof employeeSchema>) => {
@@ -250,7 +261,7 @@ const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheet
                 <FormItem>
                   <FormLabel>Salary</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="Enter salary" {...field} />
+                    <Input type="number" placeholder="Enter  " {...field} value={field.value as number} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

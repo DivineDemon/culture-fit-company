@@ -1,4 +1,4 @@
-import { Download, Loader2, UserPlus } from "lucide-react";
+import { Download, Loader2, Upload, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useRowColumns } from "@/components/dashboard/columns";
@@ -7,16 +7,39 @@ import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { RootState } from "@/store";
-import { useGetEmployeesQuery } from "@/store/services/employees";
+import { useGetEmployeesQuery} from "@/store/services/employees";
+import { usePostPolicyMutation } from "@/store/services/company";
+import UploadModal from "@/components/shared/file-uploader";
+import { toast } from "sonner";
 
 const Dashboard = () => {
   const columns = useRowColumns();
   const [open, setOpen] = useState(false);
+  const [postPolicy] = usePostPolicyMutation();
+  const { id: companyId } = useSelector((state: RootState) => state.global);
   const [search, setSearch] = useState<string>("");
+  const [uploadOpen, setUploadOpen] = useState(false);
   const { mode } = useSelector((state: RootState) => state.global);
 
   const id = useSelector((state: RootState) => state.global.id);
   const { data: employee, isLoading: isLoadingEmployee } = useGetEmployeesQuery(id!, { skip: !id });
+
+  const handleUpload = async (files: File[]) => {
+    if (!companyId) return;
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append("file", file);
+    });
+    try {
+      const response = await postPolicy({ id: companyId, formData });
+      if (response.data.status_code === 200) {
+        toast.success("Files uploaded successfully");
+      }
+      setUploadOpen(false);
+    } catch (_err) {
+      toast.error("Failed to upload files");
+    }
+  };
 
   return (
     <>
@@ -26,6 +49,10 @@ const Dashboard = () => {
             {mode === "employees" ? "Candidates" : "Employees"}
           </span>
           <div className="hidden flex-col gap-2.5 md:flex md:flex-row">
+            <Button variant="default" size="sm" type="button" onClick={() => setUploadOpen(true)}>
+              Upload Document
+              <Upload />
+            </Button>
             <Button variant="default" size="sm" type="button" onClick={() => setOpen(true)}>
               Add {mode === "employees" ? "Candidates" : "Employees"} &nbsp;
               <UserPlus />
@@ -36,6 +63,9 @@ const Dashboard = () => {
             </Button>
           </div>
           <div className="flex gap-2.5 md:hidden">
+            <Button variant="default" size="icon" type="button" onClick={() => setUploadOpen(true)}>
+              <Upload />
+            </Button>
             <Button variant="default" size="icon" type="button" onClick={() => setOpen(true)}>
               <UserPlus />
             </Button>
@@ -47,7 +77,7 @@ const Dashboard = () => {
         <div className="flex h-[calc(100vh-156px)] w-full flex-col gap-3.5 overflow-hidden">
           <Input
             type="text"
-            className="w-1/3"
+            className="w-3/4 md:w-1/3"
             placeholder={`Filter ${mode === "employees" ? "Candidates" : "Employees"} by Email...`}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -75,6 +105,14 @@ const Dashboard = () => {
           employee={employee?.find((e: { id: string }) => e.id === id)}
           companyId={id}
         />
+
+        <UploadModal
+        open={uploadOpen}
+        onClose={() => setUploadOpen(false)}
+        onUpload={handleUpload}
+        companyId={id ?? ""}
+        // employeeId={id!}
+      />
       </div>
     </>
   );
