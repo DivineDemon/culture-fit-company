@@ -103,7 +103,7 @@ const UserDetails = () => {
 
       <div className="flex h-full flex-col gap-5 md:grid md:grid-cols-2">
         <div className="order-1 lg:order-2">
-          <EmployeeFile id={id ?? ""} />
+          <EmployeeFile />
         </div>
 
         <div className="order-1 flex h-full flex-col gap-5 rounded-xl border p-4 md:order-2 md:col-span-1">
