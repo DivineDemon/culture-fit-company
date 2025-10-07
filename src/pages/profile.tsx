@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Briefcase, Globe, Loader2, MapPin } from "lucide-react";
+import { Briefcase, Globe, Loader2, Mail, MapPin, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
@@ -113,7 +113,7 @@ const Profile = () => {
             <h1 className="font-bold text-3xl text-primary">
               {data?.company_name}
             </h1>
-            <span className="pb-4 text-primary">
+            <span className="pb-4 text-muted-foreground">
               {data?.company_email || "—"}
             </span>
           </div>
@@ -133,179 +133,190 @@ const Profile = () => {
         </div>
       </div>
 
-      {isEditing ? (
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2"
-          >
-            <FormField
-              control={form.control}
-              name="owner_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Owner Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter company type" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="owner_email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Owner Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter company type" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="company_type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Industry</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter company type" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+      <div className="pt-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
+        <div className="col-span-2 flex flex-col gap-6">
+          {isEditing ? (
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="grid grid-cols-1 gap-6 sm:grid-cols-2"
+              >
+                <FormField
+                  control={form.control}
+                  name="owner_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Owner Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter company type" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="owner_email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Owner Email</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter company type" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="company_type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Industry</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter company type" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <FormField
-              control={form.control}
-              name="company_address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Location</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter company address" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <FormField
+                  control={form.control}
+                  name="company_address"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Location</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter company address" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <FormField
-              control={form.control}
-              name="company_website"
-              render={({ field }) => (
-                <FormItem className="sm:col-span-2">
-                  <FormLabel>Website</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter company website" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <FormField
+                  control={form.control}
+                  name="company_website"
+                  render={({ field }) => (
+                    <FormItem className="sm:col-span-2">
+                      <FormLabel>Website</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter company website" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <FormField
-              control={form.control}
-              name="company_description"
-              render={({ field }) => (
-                <FormItem className="sm:col-span-2">
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Write about your company..."
-                      className="min-h-[100px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <FormField
+                  control={form.control}
+                  name="company_description"
+                  render={({ field }) => (
+                    <FormItem className="sm:col-span-2">
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Write about your company..."
+                          className="min-h-[100px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <div className="col-span-2 flex w-full items-end justify-end">
-              <Button type="submit" disabled={isUpdating} className="">
-                {isUpdating && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
-                Save Changes
-              </Button>
-            </div>
-          </form>
-        </Form>
-      ) : (
-        <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
-          <div className="flex flex-col rounded-lg border p-4 shadow gap-2">
-            <Label className="text-muted-foreground text-sm">
-              Company Email
-            </Label>
-            <div className="flex items-center gap-2 font-medium">
-              <Briefcase className="h-4 w-4 text-primary" />
-              {data?.company_email || "—"}
-            </div>
-          </div>
-          <div className="flex flex-col rounded-lg border p-4 shadow gap-2">
-            <Label className="text-muted-foreground text-sm">Owner Name</Label>
-            <div className="flex items-center gap-2 font-medium">
-              <Briefcase className="h-4 w-4 text-primary" />
-              {data?.owner_name || "—"}
-            </div>
-          </div>
-          <div className="flex flex-col rounded-lg border p-4 shadow gap-2">
-            <Label className="text-muted-foreground text-sm">Owner Email</Label>
-            <div className="flex items-center gap-2 font-medium text-[16px]">
-              <Briefcase className="h-4 w-4 text-primary" />
-              {data?.owner_email || "—"}
-            </div>
-          </div>
-          <div className="flex flex-col rounded-lg border p-4 shadow gap-2">
-            <Label className="text-muted-foreground text-sm">Industry</Label>
-            <div className="flex items-center gap-2 font-medium text-[16px]">
-              <Briefcase className="h-4 w-4 text-primary" />
-              {data?.company_type || "—"}
-            </div>
-          </div>
+                <div className="col-span-2 flex w-full items-end justify-end">
+                  <Button type="submit" disabled={isUpdating} className="">
+                    {isUpdating && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
+                    Save Changes
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="flex flex-col rounded-lg border p-4 shadow gap-2">
+                <Label className="text-muted-foreground text-sm">
+                  Company Email
+                </Label>
+                <div className="flex items-center gap-2 font-medium text-[15px]">
+                  <Mail className="h-4 w-4 text-primary" />
+                  {data?.company_email || "—"}
+                </div>
+              </div>
+              <div className="flex flex-col rounded-lg border p-4 shadow gap-2">
+                <Label className="text-muted-foreground text-sm">
+                  Owner Name
+                </Label>
+                <div className="flex items-center gap-2 font-medium text-[15px]">
+                  <User className="h-4 w-4 text-primary" />
+                  {data?.owner_name || "—"}
+                </div>
+              </div>
+              <div className="flex flex-col rounded-lg border p-4 shadow gap-2">
+                <Label className="text-muted-foreground text-sm">
+                  Owner Email
+                </Label>
+                <div className="flex items-center gap-2 font-medium text-[15px]">
+                  <Mail className="h-4 w-4 text-primary" />
+                  {data?.owner_email || "—"}
+                </div>
+              </div>
+              <div className="flex flex-col rounded-lg border p-4 shadow gap-2">
+                <Label className="text-muted-foreground text-sm">
+                  Industry
+                </Label>
+                <div className="flex items-center gap-2 font-medium text-[15px]">
+                  <Briefcase className="h-4 w-4 text-primary" />
+                  {data?.company_type || "—"}
+                </div>
+              </div>
+              <div className="flex flex-col rounded-lg border p-4 shadow gap-2">
+                <Label className="text-muted-foreground text-sm">
+                  Location
+                </Label>
+                <div className="flex items-center gap-2 font-medium text-[15px]">
+                  <MapPin className="h-4 w-4 text-primary" />
+                  {data?.company_address || "—"}
+                </div>
+              </div>
+              <div className="flex flex-col rounded-lg border p-4 shadow gap-2">
+                <Label className="text-muted-foreground text-sm">Website</Label>
+                <div className="flex items-center gap-2 font-medium text-[15px]">
+                  <Globe className="h-4 w-4 text-primary" />
+                  {data?.company_website ? (
+                    <a
+                      href={data.company_website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary underline"
+                    >
+                      {data.company_website}
+                    </a>
+                  ) : (
+                    "—"
+                  )}
+                </div>
+              </div>
 
-          <div className="flex flex-col rounded-lg border p-4 shadow gap-2">
-            <Label className="text-muted-foreground text-sm">Location</Label>
-            <div className="flex items-center gap-2 font-medium text-[16px]">
-              <MapPin className="h-4 w-4 text-primary" />
-              {data?.company_address || "—"}
+              <div className="flex flex-col rounded-lg border p-4 shadow gap-2 sm:col-span-2">
+                <Label className="text-muted-foreground text-sm">
+                  Description
+                </Label>
+                <p className="flex items-center gap-2 font-medium text-[16px]">
+                  {data?.company_description || "No description provided"}
+                </p>
+              </div>
             </div>
-          </div>
-
-          <div className="flex flex-col rounded-lg border p-4 shadow gap-2">
-            <Label className="text-muted-foreground text-sm">Website</Label>
-            <div className="flex items-center gap-2 font-medium text-[16px]">
-              <Globe className="h-4 w-4 text-primary" />
-              {data?.company_website ? (
-                <a
-                  href={data.company_website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary underline"
-                >
-                  {data.company_website}
-                </a>
-              ) : (
-                "—"
-              )}
-            </div>
-          </div>
-
-          <div className="flex flex-col rounded-lg border p-4 shadow gap-2 sm:col-span-2">
-            <Label className="text-muted-foreground text-sm">Description</Label>
-            <p className="flex items-center gap-2 font-medium text-[16px]">
-              {data?.company_description || "No description provided"}
-            </p>
-          </div>
+          )}
         </div>
-      )}
-
-      <div className="pt-8 h-fit">
-        <CulturePolicies />
+        <div className="h-full col-span-1">
+          <CulturePolicies />
+        </div>
       </div>
     </div>
   );

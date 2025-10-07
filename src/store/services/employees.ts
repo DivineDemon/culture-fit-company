@@ -1,5 +1,11 @@
 import { api } from "./core";
 
+interface EmployeeFileData {
+  id: string;
+  file_name: string;
+  file_data?: string;
+}
+
 export const employees = api.injectEndpoints({
   endpoints: (build) => ({
     getEmployees: build.query({
@@ -40,11 +46,16 @@ export const employees = api.injectEndpoints({
     }),
 
     getEmployeefiles: build.query({
-      query: ({ companyId, id }: { companyId: string; id: string }) => ({
+      query: ({ companyId, id }) => ({
         url: `/employees/company/${companyId}/${id}/files`,
         method: "GET",
       }),
       providesTags: ["files"],
+      transformResponse: (response: {
+        message: string;
+        status_code: number;
+        data: EmployeeFileData[];
+      }) => response.data,
     }),
   }),
 });

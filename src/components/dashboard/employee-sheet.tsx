@@ -6,14 +6,31 @@ import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import type z from "zod";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { employeeSchema } from "@/lib/form-schemas";
 import type { RootState } from "@/store";
-import { usePostEmployeeMutation, useUpdateEmployeeMutation } from "@/store/services/employees";
+import {
+  usePostEmployeeMutation,
+  useUpdateEmployeeMutation,
+} from "@/store/services/employees";
 import { Switch } from "../ui/switch";
 import type { Employee } from "./columns";
+import UploadModal from "../shared/file-uploader";
 
 interface EmployeeSheetProps {
   id?: string;
@@ -23,12 +40,26 @@ interface EmployeeSheetProps {
   companyId: string;
 }
 
-const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheetProps) => {
+const EmployeeSheet = ({
+  id,
+  open,
+  setOpen,
+  employee,
+  companyId,
+}: EmployeeSheetProps) => {
   const { mode } = useSelector((state: RootState) => state.global);
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
-  const [postEmployee, { isLoading: isLoadingPost }] = usePostEmployeeMutation();
-  const [updateEmployee, { isLoading: isLoadingUpdate }] = useUpdateEmployeeMutation();
+  const [postEmployee, { isLoading: isLoadingPost }] =
+    usePostEmployeeMutation();
+  const [updateEmployee, { isLoading: isLoadingUpdate }] =
+    useUpdateEmployeeMutation();
+
+  const handleUpload = (files: File[]) => {
+    setUploadedFiles(files);
+    form.setValue("files", files);
+  };
 
   const form = useForm<z.infer<typeof employeeSchema>>({
     resolver: zodResolver(employeeSchema),
@@ -39,9 +70,10 @@ const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheet
       department: "",
       user_phone_number: "",
       date_of_birth: "",
-      salary: 0,
+      salary: 0 as number | null,
       is_role_model: false,
       is_candidate: false,
+      files: uploadedFiles,
     },
   });
 
@@ -55,7 +87,7 @@ const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheet
       ...data,
       salary: data.salary ?? 0,
       password: data.password ?? "",
-      files: [],
+      files: uploadedFiles,
     };
 
     try {
@@ -87,20 +119,20 @@ const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheet
     }
   };
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop: (acceptedFiles) => {
-      if (acceptedFiles.length > 0) {
-        setUploadedFile(acceptedFiles[0]);
-      }
-    },
-    multiple: false,
-    accept: {
-      "application/pdf": [],
-      "text/csv": [],
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [],
-      "application/vnd.ms-excel": [],
-    },
-  });
+  // const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  //   onDrop: (acceptedFiles) => {
+  //     if (acceptedFiles.length > 0) {
+  //       setUploadedFile(acceptedFiles[0]);
+  //     }
+  //   },
+  //   multiple: false,
+  //   accept: {
+  //     "application/pdf": [],
+  //     "text/csv": [],
+  //     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [],
+  //     "application/vnd.ms-excel": [],
+  //   },
+  // });
 
   useEffect(() => {
     if (id && employee) {
@@ -129,13 +161,20 @@ const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheet
           </SheetTitle>
           <SheetDescription>
             {id
-              ? `Update ${mode === "employees" ? "candidate" : "employee"} details`
-              : `Add a new ${mode === "employees" ? "candidate" : "employee"} to your account`}
+              ? `Update ${
+                  mode === "employees" ? "candidate" : "employee"
+                } details`
+              : `Add a new ${
+                  mode === "employees" ? "candidate" : "employee"
+                } to your account`}
           </SheetDescription>
         </SheetHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex h-full flex-col gap-5 overflow-auto px-4 pb-6">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex h-full flex-col gap-5 overflow-auto px-4 pb-6"
+          >
             {/* Name */}
             <FormField
               control={form.control}
@@ -180,7 +219,12 @@ const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheet
                     Password<span className="text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="Enter password" {...field} value={field.value as string} />
+                    <Input
+                      type="password"
+                      placeholder="Enter password"
+                      {...field}
+                      value={field.value as string}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -261,7 +305,12 @@ const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheet
                 <FormItem>
                   <FormLabel>Salary</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="Enter  " {...field} value={field.value as number} />
+                    <Input
+                      type="number"
+                      placeholder="Enter  "
+                      {...field}
+                      value={field.value as number}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -277,7 +326,10 @@ const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheet
                   <FormItem className="flex items-center justify-between rounded-lg border p-3">
                     <FormLabel className="text-base">Is Candidate?</FormLabel>
                     <FormControl>
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
                     </FormControl>
                   </FormItem>
                 )}
@@ -293,7 +345,10 @@ const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheet
                   <FormItem className="flex items-center justify-between rounded-lg border p-3">
                     <FormLabel className="text-base">Is Role Model?</FormLabel>
                     <FormControl>
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
                     </FormControl>
                   </FormItem>
                 )}
@@ -301,33 +356,42 @@ const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheet
             )}
 
             {/* File Uploader */}
-            <div className="flex flex-col gap-2">
-              <FormLabel>Upload File</FormLabel>
-              <div
-                {...getRootProps()}
-                className="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-border border-dashed bg-muted/30 px-5 py-10 text-center transition hover:bg-muted/50"
-              >
-                <input {...getInputProps()} />
-                {uploadedFile ? (
-                  <span className="font-medium text-base text-primary">{uploadedFile.name}</span>
-                ) : isDragActive ? (
-                  <span className="font-medium text-base">Drop the file here...</span>
-                ) : (
-                  <>
-                    <span className="font-medium text-base">Drag & Drop your file here</span>
-                    <span className="text-muted-foreground text-sm">or click to browse</span>
-                  </>
-                )}
+            {id && (
+              <div className="flex flex-col gap-2">
+                <FormLabel>Upload File</FormLabel>
+                <div
+                  onClick={() => setUploadModalOpen(true)}
+                  className="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-border border-dashed bg-muted/30 px-5 py-10 text-center transition hover:bg-muted/50"
+                >
+                  <span className="font-medium text-base">
+                    Click to upload or drag files
+                  </span>
+                  <span className="text-muted-foreground text-sm">
+                    Opens upload dialog
+                  </span>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Submit Button */}
-            <Button type="submit" className="mt-auto w-full" disabled={isLoadingPost || isLoadingUpdate}>
+            <Button
+              type="submit"
+              className="mt-auto w-full"
+              disabled={isLoadingPost || isLoadingUpdate}
+            >
               {id
                 ? `Update ${mode === "employees" ? "Candidate" : "Employee"}`
                 : `Add ${mode === "employees" ? "Candidate" : "Employee"}`}
             </Button>
           </form>
+
+          <UploadModal
+            open={uploadModalOpen}
+            onClose={() => setUploadModalOpen(false)}
+            onUpload={handleUpload}
+            companyId={companyId}
+            employeeId={id}
+          />
         </Form>
       </SheetContent>
     </Sheet>

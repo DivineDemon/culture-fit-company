@@ -111,7 +111,7 @@ const Dashboard = () => {
         onClose={() => setUploadOpen(false)}
         onUpload={handleUpload}
         companyId={id ?? ""}
-        // employeeId={id!}
+        employeeId={id!}
       />
       </div>
     </>

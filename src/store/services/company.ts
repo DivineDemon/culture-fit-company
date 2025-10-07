@@ -21,10 +21,10 @@ export const companies = api.injectEndpoints({
     }),
 
     postPolicy: build.mutation({
-      query: ({ id, formData }: { id: string; formData: FormData }) => ({
+      query: ({ id, data }: { id: string; data: Policy }) => ({
         url: `/companies/${id}/files`,
         method: "POST",
-        body: formData,
+        body: data,
       }),
       invalidatesTags: ["policies"],
     }),

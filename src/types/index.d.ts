@@ -36,6 +36,7 @@ declare type Employees = {
 interface FileItem {
   id: string;
   file_name: string;
+  file_data:string;
 };
 
 declare type CompanyInfo = {
@@ -58,3 +59,9 @@ declare type Policy = {
   file_size: number;
   description: string | null;
 };
+
+declare type CompanyFile ={
+  id: string;
+  file_name: string;
+  file_data:string;
+}
