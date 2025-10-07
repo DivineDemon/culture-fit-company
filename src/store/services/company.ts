@@ -28,6 +28,7 @@ export const companies = api.injectEndpoints({
       }),
       invalidatesTags: ["policies"],
     }),
+
     getPolicies: build.query({
       query: (id: string) => ({
         url: `/companies/${id}/files`,
@@ -36,6 +37,7 @@ export const companies = api.injectEndpoints({
       providesTags: ["policies"],
       transformResponse: (response: { status: string; message: string; data: Policy[] }) => response.data,
     }),
+
     downloadPolicy: build.query<Blob, { id: string; file_id: string }>({
       query: ({ id, file_id }) => ({
         url: `/companies/${id}/files/${file_id}`,

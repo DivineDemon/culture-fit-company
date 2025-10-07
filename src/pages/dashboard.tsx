@@ -1,7 +1,6 @@
 import { Download, Loader2, Upload, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { toast } from "sonner";
 import { useRowColumns } from "@/components/dashboard/columns";
 import EmployeeSheet from "@/components/dashboard/employee-sheet";
 import { DataTable } from "@/components/data-table";
@@ -9,13 +8,11 @@ import UploadModal from "@/components/shared/file-uploader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { RootState } from "@/store";
-import { usePostPolicyMutation } from "@/store/services/company";
 import { useGetEmployeesQuery } from "@/store/services/employees";
 
 const Dashboard = () => {
   const columns = useRowColumns();
   const [open, setOpen] = useState(false);
-  const [postPolicy] = usePostPolicyMutation();
   const { id: companyId } = useSelector((state: RootState) => state.global);
   const [search, setSearch] = useState<string>("");
   const [uploadOpen, setUploadOpen] = useState(false);
@@ -25,31 +22,8 @@ const Dashboard = () => {
   const { data: employee, isLoading: isLoadingEmployee } = useGetEmployeesQuery(id!, { skip: !id });
 
   const handleUpload = async (files: File[]) => {
+    if (!files.length) return;
     if (!companyId) return;
-
-    const formData = new FormData();
-    files.forEach((file) => {
-      formData.append("file", file);
-    });
-
-    try {
-      const response = await postPolicy({
-        id: companyId,
-        data: {
-          company_id: "",
-          file_name: "",
-          file_size: 0,
-          description: "",
-          id: "",
-        },
-      });
-      if (response.data.status_code === 200) {
-        toast.success("Files uploaded successfully");
-      }
-      setUploadOpen(false);
-    } catch (err) {
-      toast.error(`${(err as Error).message}`);
-    }
   };
 
   return (
