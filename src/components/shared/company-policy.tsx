@@ -2,14 +2,14 @@ import MDEditor from "@uiw/react-md-editor";
 import { jsPDF } from "jspdf";
 import { CircleAlert, Download, FileText, Loader2, Paperclip, TriangleAlert } from "lucide-react";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { truncateString } from "@/lib/utils";
+import type { RootState } from "@/store";
 import { useGetPoliciesQuery } from "@/store/services/company";
 import { Button } from "../ui/button";
-import type { RootState } from "@/store";
-import { useSelector } from "react-redux";
 
 interface Policy {
   id: string;

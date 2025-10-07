@@ -1,16 +1,16 @@
 import { Download, Loader2, Upload, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
+import { toast } from "sonner";
 import { useRowColumns } from "@/components/dashboard/columns";
 import EmployeeSheet from "@/components/dashboard/employee-sheet";
 import { DataTable } from "@/components/data-table";
+import UploadModal from "@/components/shared/file-uploader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { RootState } from "@/store";
-import { useGetEmployeesQuery} from "@/store/services/employees";
 import { usePostPolicyMutation } from "@/store/services/company";
-import UploadModal from "@/components/shared/file-uploader";
-import { toast } from "sonner";
+import { useGetEmployeesQuery } from "@/store/services/employees";
 
 const Dashboard = () => {
   const columns = useRowColumns();
@@ -26,18 +26,29 @@ const Dashboard = () => {
 
   const handleUpload = async (files: File[]) => {
     if (!companyId) return;
+
     const formData = new FormData();
     files.forEach((file) => {
       formData.append("file", file);
     });
+
     try {
-      const response = await postPolicy({ id: companyId, formData });
+      const response = await postPolicy({
+        id: companyId,
+        data: {
+          company_id: "",
+          file_name: "",
+          file_size: 0,
+          description: "",
+          id: "",
+        },
+      });
       if (response.data.status_code === 200) {
         toast.success("Files uploaded successfully");
       }
       setUploadOpen(false);
-    } catch (_err) {
-      toast.error("Failed to upload files");
+    } catch (err) {
+      toast.error(`${(err as Error).message}`);
     }
   };
 
@@ -107,12 +118,12 @@ const Dashboard = () => {
         />
 
         <UploadModal
-        open={uploadOpen}
-        onClose={() => setUploadOpen(false)}
-        onUpload={handleUpload}
-        companyId={id ?? ""}
-        employeeId={id!}
-      />
+          open={uploadOpen}
+          onClose={() => setUploadOpen(false)}
+          onUpload={handleUpload}
+          companyId={id ?? ""}
+          employeeId={id!}
+        />
       </div>
     </>
   );

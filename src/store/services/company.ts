@@ -46,4 +46,10 @@ export const companies = api.injectEndpoints({
   }),
 });
 
-export const { useGetCompanyQuery, useUpdateCompanyMutation, useGetPoliciesQuery, usePostPolicyMutation, useLazyDownloadPolicyQuery } = companies;
+export const {
+  useGetCompanyQuery,
+  useUpdateCompanyMutation,
+  useGetPoliciesQuery,
+  usePostPolicyMutation,
+  useLazyDownloadPolicyQuery,
+} = companies;

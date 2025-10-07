@@ -1,5 +1,5 @@
 declare type GlobalState = {
-  employee: null | any;
+  employee: null | Employee;
   token: string;
   id: string;
   mode: "employees" | "candidates";

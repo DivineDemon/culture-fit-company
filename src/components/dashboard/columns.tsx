@@ -35,7 +35,7 @@ const ActionsCell = ({ row }: { row: Row<Employee> }) => {
   const [open, setOpen] = useState<boolean>(false);
   // const [warn, setWarn] = useState<boolean>(false);
   const [selected, setSelected] = useState<string>("");
-  const mode  = useSelector((state: RootState) => state.global.mode);
+  const mode = useSelector((state: RootState) => state.global.mode);
 
   const navigate = useNavigate();
 

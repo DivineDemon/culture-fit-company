@@ -51,11 +51,8 @@ export const employees = api.injectEndpoints({
         method: "GET",
       }),
       providesTags: ["files"],
-      transformResponse: (response: {
-        message: string;
-        status_code: number;
-        data: EmployeeFileData[];
-      }) => response.data,
+      transformResponse: (response: { message: string; status_code: number; data: EmployeeFileData[] }) =>
+        response.data,
     }),
   }),
 });

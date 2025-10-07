@@ -4,13 +4,7 @@ import { useDropzone } from "react-dropzone";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { callWebhook } from "@/lib/api";
 import { extractTextFromPDF } from "@/lib/utils";
 
@@ -22,13 +16,7 @@ interface UploadModalProps {
   employeeId?: string;
 }
 
-const UploadModal = ({
-  open,
-  onClose,
-  onUpload,
-  companyId,
-  employeeId,
-}: UploadModalProps) => {
+const UploadModal = ({ open, onClose, onUpload, companyId, employeeId }: UploadModalProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
@@ -62,19 +50,12 @@ const UploadModal = ({
       for (const file of uploadedFiles) {
         const content = await extractTextFromPDF(file);
 
-        const response = await callWebhook(
-          content,
-          companyId,
-          file.name,
-          employeeId
-        );
+        const response = await callWebhook(content, companyId, file.name, employeeId);
 
         if (response.success) {
           toast.success("File uploaded successfully");
         } else {
-          toast.error(
-            response.error || "Something went wrong, please try again!"
-          );
+          toast.error(response.error || "Something went wrong, please try again!");
         }
       }
 
@@ -92,9 +73,7 @@ const UploadModal = ({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle className="font-semibold text-lg">
-            Upload Files
-          </DialogTitle>
+          <DialogTitle className="font-semibold text-lg">Upload Files</DialogTitle>
         </DialogHeader>
 
         <div
@@ -104,17 +83,11 @@ const UploadModal = ({
           <input {...getInputProps()} />
 
           {isDragActive ? (
-            <span className="font-medium text-base">
-              Drop the files here...
-            </span>
+            <span className="font-medium text-base">Drop the files here...</span>
           ) : (
             <>
-              <span className="font-medium text-base">
-                Drag & Drop PDF files here
-              </span>
-              <span className="text-muted-foreground text-sm">
-                You can upload multiple files
-              </span>
+              <span className="font-medium text-base">Drag & Drop PDF files here</span>
+              <span className="text-muted-foreground text-sm">You can upload multiple files</span>
             </>
           )}
         </div>
@@ -122,10 +95,7 @@ const UploadModal = ({
         {uploadedFiles.length > 0 && (
           <div className="mt-4 flex max-h-48 gap-2 overflow-x-auto">
             {uploadedFiles.map((file, index) => (
-              <Badge
-                key={index}
-                className="flex items-center justify-between rounded-md border px-2 text-xs"
-              >
+              <Badge key={index} className="flex items-center justify-between rounded-md border px-2 text-xs">
                 <span className="max-w-[75%] truncate">{file.name}</span>
                 <button
                   onClick={() => handleRemoveFile(index)}
@@ -142,11 +112,7 @@ const UploadModal = ({
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button
-            type="submit"
-            onClick={handleUpload}
-            disabled={isLoading || uploadedFiles.length === 0}
-          >
+          <Button type="submit" onClick={handleUpload} disabled={isLoading || uploadedFiles.length === 0}>
             {isLoading ? "Uploading..." : "Upload"}
           </Button>
         </DialogFooter>

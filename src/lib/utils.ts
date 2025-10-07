@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
-import { GlobalWorkerOptions, getDocument, type PDFDocumentProxy } from "pdfjs-dist";
+import { GlobalWorkerOptions, getDocument, type PDFDocumentProxy, type TextItem } from "pdfjs-dist";
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.min?url";
+import { twMerge } from "tailwind-merge";
 
 GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
@@ -22,7 +22,7 @@ export async function extractTextFromPDF(file: File): Promise<string> {
   for (let i = 1; i <= pdf.numPages; i++) {
     const page = await pdf.getPage(i);
     const textContent = await page.getTextContent();
-    const pageText = textContent.items.map((item) => (item as any).str).join(" ");
+    const pageText = textContent.items.map((item) => ("str" in item ? (item as TextItem).str : "")).join(" ");
     fullText += `${pageText}\n\n`;
   }
 

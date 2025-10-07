@@ -1,28 +1,16 @@
 import MDEditor from "@uiw/react-md-editor";
 import { jsPDF } from "jspdf";
-import {
-  CircleAlert,
-  Download,
-  FileText,
-  Loader2,
-  Paperclip,
-  TriangleAlert,
-} from "lucide-react";
+import { CircleAlert, Download, FileText, Loader2, Paperclip, TriangleAlert } from "lucide-react";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { truncateString } from "@/lib/utils";
-import { Button } from "../ui/button";
-import { useGetEmployeefilesQuery } from "@/store/services/employees";
-import { useSelector } from "react-redux";
 import type { RootState } from "@/store";
+import { useGetEmployeefilesQuery } from "@/store/services/employees";
+import { Button } from "../ui/button";
 
 interface EmployeeFileData {
   id: string;
@@ -35,13 +23,11 @@ const EmployeeFile = () => {
   const companyId = useSelector((state: RootState) => state.global.id);
   const { data, isLoading, error } = useGetEmployeefilesQuery(
     { companyId: companyId!, id: id! },
-    { skip: !id || !companyId }
+    { skip: !id || !companyId },
   );
 
   const [open, setOpen] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<EmployeeFileData | null>(
-    null
-  );
+  const [selectedFile, setSelectedFile] = useState<EmployeeFileData | null>(null);
 
   const handleOpenModal = (file: EmployeeFileData) => {
     setSelectedFile(file);
@@ -85,10 +71,8 @@ const EmployeeFile = () => {
       const lines = selectedFile.file_data.split("\n");
       for (const line of lines) {
         if (line.startsWith("# ")) addText(line.replace("# ", ""), true, 18);
-        else if (line.startsWith("## "))
-          addText(line.replace("## ", ""), true, 16);
-        else if (line.startsWith("### "))
-          addText(line.replace("### ", ""), true, 14);
+        else if (line.startsWith("## ")) addText(line.replace("## ", ""), true, 16);
+        else if (line.startsWith("### ")) addText(line.replace("### ", ""), true, 14);
         else if (line.startsWith("- ") || line.startsWith("* "))
           addText(`• ${line.replace(/^[-*]\s*/, "")}`, false, 12);
         else if (line.trim() === "") cursorY += 8;
@@ -125,32 +109,21 @@ const EmployeeFile = () => {
     <>
       <Card className="h-full w-full shadow-none">
         <CardHeader>
-          <CardTitle className="font-semibold text-primary text-xl">
-            Employee Documents
-          </CardTitle>
+          <CardTitle className="font-semibold text-primary text-xl">Employee Documents</CardTitle>
         </CardHeader>
 
         <CardContent className="h-full space-y-4 overflow-y-scroll lg:h-[618px]">
           <div className="flex flex-col items-start gap-2.5">
             {data && data.length > 0 ? (
               data.map((file) => (
-                <div
-                  key={file.id}
-                  className="flex w-full items-center justify-center gap-2.5 border-b pb-3"
-                >
+                <div key={file.id} className="flex w-full items-center justify-center gap-2.5 border-b pb-3">
                   <div className="size-10 rounded-full bg-primary p-2 text-white">
                     <FileText className="size-full" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-medium text-sm">
-                      {truncateString(file.file_name, 20)}
-                    </h3>
+                    <h3 className="font-medium text-sm">{truncateString(file.file_name, 20)}</h3>
                   </div>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => handleOpenModal(file as EmployeeFileData)}
-                  >
+                  <Button size="icon" variant="ghost" onClick={() => handleOpenModal(file as EmployeeFileData)}>
                     <Paperclip className="size-4 text-muted-foreground" />
                   </Button>
                 </div>
@@ -168,16 +141,10 @@ const EmployeeFile = () => {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="flex max-h-[85vh] w-screen-xl flex-col p-0">
           <DialogHeader className="flex flex-row items-center justify-between border-b px-6 py-4">
-            <DialogTitle className="font-semibold text-lg">
-              {selectedFile?.file_name || "Document"}
-            </DialogTitle>
+            <DialogTitle className="font-semibold text-lg">{selectedFile?.file_name || "Document"}</DialogTitle>
           </DialogHeader>
 
-          <div
-            id="markdown-preview"
-            className="flex-1 overflow-y-auto px-6 py-4"
-            data-color-mode="light"
-          >
+          <div id="markdown-preview" className="flex-1 overflow-y-auto px-6 py-4" data-color-mode="light">
             {selectedFile?.file_data ? (
               <MDEditor.Markdown
                 source={selectedFile.file_data}
