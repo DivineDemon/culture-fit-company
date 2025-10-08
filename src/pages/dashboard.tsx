@@ -31,7 +31,7 @@ const Dashboard = () => {
       <div className="flex h-full w-full flex-col items-start justify-start gap-5 md:overflow-hidden">
         <div className="flex w-full items-start justify-start gap-2.5">
           <span className="flex-1 text-left font-bold text-[32px] leading-[32px]">
-            {mode === "employees" ? "Candidates" : "Employees"}
+            {mode === "employees" ? "Employees" : "Candidates"}
           </span>
           <div className="hidden flex-col gap-2.5 md:flex md:flex-row">
             <Button variant="default" size="sm" type="button" onClick={() => setUploadOpen(true)}>
@@ -39,7 +39,7 @@ const Dashboard = () => {
               <Upload />
             </Button>
             <Button variant="default" size="sm" type="button" onClick={() => setOpen(true)}>
-              Add {mode === "employees" ? "Candidates" : "Employees"} &nbsp;
+              Add {mode === "employees" ? "Employees" : "Candidates"} &nbsp;
               <UserPlus />
             </Button>
             <Button variant="default" size="sm" type="button">
@@ -63,7 +63,7 @@ const Dashboard = () => {
           <Input
             type="text"
             className="w-3/4 md:w-1/3"
-            placeholder={`Filter ${mode === "employees" ? "Candidates" : "Employees"} by Email...`}
+            placeholder={`Filter ${mode === "employees" ? "Employees" : "Candidates"} by Email...`}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -76,7 +76,7 @@ const Dashboard = () => {
               columns={columns}
               data={
                 employee
-                  ?.filter((e: { email: string; is_candidate: boolean }) => e.is_candidate === (mode === "employees"))
+                  ?.filter((e: { email: string; is_candidate: boolean }) => e.is_candidate === (mode === "candidates"))
                   .filter((e: { email: string }) =>
                     search ? e.email.toLowerCase().includes(search.toLowerCase()) : true,
                   ) || []

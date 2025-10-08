@@ -18,15 +18,14 @@ import type { Employee } from "./columns";
 interface EmployeeSheetProps {
   id?: string;
   open: boolean;
-  setOpen: Dispatch<SetStateAction<boolean>>;
-  employee?: Employee;
   companyId: string;
+  employee?: Employee;
+  setOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheetProps) => {
-  const { mode } = useSelector((state: RootState) => state.global);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
-
+  const { mode } = useSelector((state: RootState) => state.global);
   const [postEmployee, { isLoading: isLoadingPost }] = usePostEmployeeMutation();
   const [updateEmployee, { isLoading: isLoadingUpdate }] = useUpdateEmployeeMutation();
 
@@ -39,32 +38,34 @@ const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheet
     defaultValues: {
       name: "",
       email: "",
-      user_designation: "",
       department: "",
-      user_phone_number: "",
       date_of_birth: "",
       salary: undefined,
-      is_role_model: false,
       is_candidate: false,
+      is_role_model: false,
+      user_designation: "",
+      user_phone_number: "",
     },
   });
 
   const onSubmit = async (data: z.infer<typeof employeeSchema>) => {
-    const payload = {
-      id: id ?? "",
-      user_id: employee?.id ?? "",
-      company_id: companyId,
-      is_role_model: data.is_role_model ?? false,
-      is_candidate: data.is_candidate ?? false,
-      ...data,
-      salary: data.salary ?? 0,
-      password: data.password ?? "",
-      files: [],
-    };
-
     try {
       if (id) {
-        const response = await updateEmployee({ id, data: payload, companyId });
+        const response = await updateEmployee({
+          id,
+          data: {
+            ...data,
+            files: [],
+            id: id ?? "",
+            company_id: companyId,
+            salary: data.salary ?? 0,
+            user_id: employee?.id ?? "",
+            password: data.password ?? "",
+            is_candidate: mode === "candidates" ? true : false,
+            is_role_model: mode === "employees" ? (data.is_role_model ?? false) : false,
+          },
+          companyId,
+        });
 
         if (response) {
           toast.success("Employee Updated Successfully!");
@@ -75,7 +76,20 @@ const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheet
           toast.error("Something went wrong, Please try again!");
         }
       } else {
-        const response = await postEmployee({ companyId, data: payload });
+        const response = await postEmployee({
+          companyId,
+          data: {
+            ...data,
+            files: [],
+            id: id ?? "",
+            company_id: companyId,
+            salary: data.salary ?? 0,
+            user_id: employee?.id ?? "",
+            password: data.password ?? "",
+            is_candidate: mode === "candidates" ? true : false,
+            is_role_model: mode === "employees" ? (data.is_role_model ?? false) : false,
+          },
+        });
 
         if ("data" in response) {
           toast.success("Employee Created Successfully!");
@@ -90,21 +104,6 @@ const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheet
       toast.error("Unexpected error occurred!");
     }
   };
-
-  // const { getRootProps, getInputProps, isDragActive } = useDropzone({
-  //   onDrop: (acceptedFiles) => {
-  //     if (acceptedFiles.length > 0) {
-  //       setUploadedFile(acceptedFiles[0]);
-  //     }
-  //   },
-  //   multiple: false,
-  //   accept: {
-  //     "application/pdf": [],
-  //     "text/csv": [],
-  //     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [],
-  //     "application/vnd.ms-excel": [],
-  //   },
-  // });
 
   useEffect(() => {
     if (id && employee) {
@@ -128,19 +127,18 @@ const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheet
       <SheetContent>
         <SheetHeader>
           <SheetTitle>
-            {id ? "Edit" : "Add"}
-            {mode === "employees" ? " Candidate" : " Employee"}
+            {id ? "Edit" : "Add"}&nbsp;
+            {mode === "employees" ? "Employee" : "Candidate"}
           </SheetTitle>
           <SheetDescription>
             {id
-              ? `Update ${mode === "employees" ? "candidate" : "employee"} details`
-              : `Add a new ${mode === "employees" ? "candidate" : "employee"} to your account`}
+              ? `Update ${mode === "employees" ? "employee" : "candidate"} details`
+              : `Add a new ${mode === "employees" ? "employee" : "candidate"} to your account`}
           </SheetDescription>
         </SheetHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex h-full flex-col gap-5 overflow-auto px-4 pb-6">
-            {/* Name */}
             <FormField
               control={form.control}
               name="name"
@@ -156,8 +154,6 @@ const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheet
                 </FormItem>
               )}
             />
-
-            {/* Email */}
             <FormField
               control={form.control}
               name="email"
@@ -173,8 +169,6 @@ const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheet
                 </FormItem>
               )}
             />
-
-            {/* Password */}
             <FormField
               control={form.control}
               name="password"
@@ -190,8 +184,6 @@ const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheet
                 </FormItem>
               )}
             />
-
-            {/* Designation */}
             <FormField
               control={form.control}
               name="user_designation"
@@ -207,8 +199,6 @@ const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheet
                 </FormItem>
               )}
             />
-
-            {/* Department */}
             <FormField
               control={form.control}
               name="department"
@@ -224,8 +214,6 @@ const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheet
                 </FormItem>
               )}
             />
-
-            {/* Phone Number */}
             <FormField
               control={form.control}
               name="user_phone_number"
@@ -241,8 +229,6 @@ const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheet
                 </FormItem>
               )}
             />
-
-            {/* Date of Birth */}
             <FormField
               control={form.control}
               name="date_of_birth"
@@ -256,8 +242,6 @@ const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheet
                 </FormItem>
               )}
             />
-
-            {/* Salary */}
             <FormField
               control={form.control}
               name="salary"
@@ -265,31 +249,22 @@ const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheet
                 <FormItem>
                   <FormLabel>Salary</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="Enter  " {...field} value={field.value as number} />
+                    <Input
+                      type="number"
+                      placeholder="Enter salary"
+                      {...field}
+                      value={field.value ?? ""}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        field.onChange(value === "" ? undefined : Number(value));
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
-            {/* Candidate Switch */}
             {mode === "employees" && (
-              <FormField
-                control={form.control}
-                name="is_candidate"
-                render={({ field }) => (
-                  <FormItem className="flex items-center justify-between rounded-lg border p-3">
-                    <FormLabel className="text-base">Is Candidate?</FormLabel>
-                    <FormControl>
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            )}
-
-            {/* Role Model Switch */}
-            {mode === "candidates" && (
               <FormField
                 control={form.control}
                 name="is_role_model"
@@ -303,8 +278,6 @@ const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheet
                 )}
               />
             )}
-
-            {/* File Uploader */}
             {id && (
               <div className="flex flex-col gap-2">
                 <FormLabel>Upload File</FormLabel>
@@ -317,15 +290,12 @@ const EmployeeSheet = ({ id, open, setOpen, employee, companyId }: EmployeeSheet
                 </div>
               </div>
             )}
-
-            {/* Submit Button */}
             <Button type="submit" className="mt-auto w-full" disabled={isLoadingPost || isLoadingUpdate}>
               {id
-                ? `Update ${mode === "employees" ? "Candidate" : "Employee"}`
-                : `Add ${mode === "employees" ? "Candidate" : "Employee"}`}
+                ? `Update ${mode === "employees" ? "Employee" : "Candidate"}`
+                : `Add ${mode === "employees" ? "Employee" : "Candidate"}`}
             </Button>
           </form>
-
           <UploadModal
             open={uploadModalOpen}
             onClose={() => setUploadModalOpen(false)}
