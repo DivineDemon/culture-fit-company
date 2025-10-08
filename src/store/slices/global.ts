@@ -5,6 +5,7 @@ const initialState: GlobalState = {
   token: "",
   id: "",
   mode: "employees",
+  openFolder: "",
 };
 
 const globalSlice = createSlice({
@@ -23,8 +24,11 @@ const globalSlice = createSlice({
     setMode: (state, action) => {
       state.mode = action.payload as "employees" | "candidates";
     },
+    setOpenFolder: (state, action) => {
+      state.openFolder = action.payload;
+    },
   },
 });
 
-export const { setemployee, setToken, setId, setMode } = globalSlice.actions;
+export const { setemployee, setToken, setId, setMode, setOpenFolder } = globalSlice.actions;
 export default globalSlice.reducer;

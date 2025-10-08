@@ -3,6 +3,7 @@ declare type GlobalState = {
   token: string;
   id: string;
   mode: "employees" | "candidates";
+  openFolder: string;
 };
 
 declare type PostLogin = {
@@ -65,3 +66,9 @@ declare type CompanyFile ={
   file_name: string;
   file_data:string;
 }
+
+declare type DocumentItem = {
+  id: string;
+  name: string;
+  type: "folder" | "file";
+};
