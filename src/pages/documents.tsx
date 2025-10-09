@@ -9,7 +9,7 @@ import type { RootState } from "@/types/global";
 
 const Documents = () => {
   const dispatch = useDispatch();
-  const [content, setContent] = useState<DocumentItem[]>(documents);
+  const [content, _setContent] = useState<DocumentItem[]>(documents);
   const { openFolder } = useSelector((state: RootState) => state.global);
 
   const handleCloseFolder = () => {

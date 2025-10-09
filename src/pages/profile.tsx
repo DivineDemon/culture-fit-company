@@ -10,10 +10,10 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { companySchema } from "@/lib/form-schemas";
+import { companySchema, passwordSchema } from "@/lib/form-schemas";
 import { cn } from "@/lib/utils";
-import type { RootState } from "@/store";
-import { useGetCompanyQuery, useUpdateCompanyMutation } from "@/store/services/company";
+import { useGetCompanyQuery, useUpdateCompanyMutation, useUpdatePasswordMutation } from "@/store/services/company";
+import type { RootState } from "@/types/global";
 
 const Profile = () => {
   const companyId = useSelector((state: RootState) => state.global.id);
@@ -23,6 +23,7 @@ const Profile = () => {
   });
 
   const [updateCompany, { isLoading: isUpdating }] = useUpdateCompanyMutation();
+  const [updatePassword, { isLoading: isUpdatingPassword }] = useUpdatePasswordMutation();
 
   const form = useForm<z.infer<typeof companySchema>>({
     resolver: zodResolver(companySchema),
@@ -36,6 +37,15 @@ const Profile = () => {
       phone_number: "",
       company_address: "",
       company_description: "",
+    },
+  });
+
+  const passwordForm = useForm<z.infer<typeof passwordSchema>>({
+    resolver: zodResolver(passwordSchema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
     },
   });
 
@@ -84,6 +94,25 @@ const Profile = () => {
     }
   };
 
+  const onPasswordSubmit = async (values: z.infer<typeof passwordSchema>) => {
+    try {
+      const response = await updatePassword({
+        id: companyId,
+        data: {
+          old_password: values.currentPassword,
+          new_password: values.newPassword,
+        },
+      });
+      if (response) {
+        toast.success("Password updated successfully!");
+        passwordForm.reset();
+      }
+    } catch (error) {
+      const err = error as { data?: { message?: string } };
+      toast.error(err.data?.message || "Something went wrong. Please try again!");
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
@@ -93,7 +122,7 @@ const Profile = () => {
   }
 
   return (
-    <div className="flex h-full w-full flex-col items-start justify-start gap-5">
+    <div className="flex h-full w-full flex-col items-start justify-start gap-5 overflow-auto">
       <div className="flex w-full items-center justify-center">
         <div className="flex w-full flex-col items-start justify-start gap-2">
           <span className="w-full text-left font-bold text-[30px] text-primary leading-[30px]">
@@ -103,18 +132,22 @@ const Profile = () => {
             {data?.company_email || "—"}
           </span>
         </div>
-        <Link
-          to="/documents"
-          className={cn(
-            buttonVariants({
-              variant: "default",
-              size: "lg",
-            }),
-          )}
-        >
-          Manage Documents
-        </Link>
+        <div className="flex w-full items-center justify-end gap-2.5">
+          <Link
+            to="/documents"
+            className={cn(
+              buttonVariants({
+                variant: "default",
+                size: "lg",
+              }),
+            )}
+          >
+            Manage Documents
+          </Link>
+        </div>
       </div>
+
+      {/* Update Profile Section */}
       <div className="flex h-full w-full flex-col items-start justify-start gap-5 rounded-xl border bg-card p-5 shadow">
         <span className="w-full text-left font-bold text-[20px] text-primary leading-[20px]">Update Profile</span>
         <Form {...form}>
@@ -129,12 +162,13 @@ const Profile = () => {
                 <FormItem>
                   <FormLabel>Owner Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter company type" {...field} />
+                    <Input placeholder="Enter owner name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="owner_email"
@@ -142,12 +176,13 @@ const Profile = () => {
                 <FormItem>
                   <FormLabel>Owner Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter company type" {...field} />
+                    <Input placeholder="Enter owner email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="company_type"
@@ -155,12 +190,13 @@ const Profile = () => {
                 <FormItem>
                   <FormLabel>Industry</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter company type" {...field} />
+                    <Input placeholder="Enter industry type" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="company_address"
@@ -174,6 +210,7 @@ const Profile = () => {
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="company_website"
@@ -187,6 +224,7 @@ const Profile = () => {
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="company_description"
@@ -194,15 +232,79 @@ const Profile = () => {
                 <FormItem className="sm:col-span-3">
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Write about your company..." className="min-h-[100px]" {...field} />
+                    <Textarea
+                      placeholder="Write about your company..."
+                      className="min-h-[100px] resize-none"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <div className="col-span-3 flex w-full items-center justify-end">
               <Button type="submit" disabled={isUpdating} variant="default" size="lg">
                 {isUpdating ? <Loader2 className="animate-spin" /> : "Save Changes"}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
+
+      {/* ✅ Update Password Section */}
+      <div className="flex h-full w-full flex-col items-start justify-start gap-5 rounded-xl border bg-card p-5 shadow">
+        <span className="w-full text-left font-bold text-[20px] text-primary leading-[20px]">Update Password</span>
+        <Form {...passwordForm}>
+          <form
+            onSubmit={passwordForm.handleSubmit(onPasswordSubmit)}
+            className="grid w-full grid-cols-3 items-start justify-start gap-5"
+          >
+            <FormField
+              control={passwordForm.control}
+              name="currentPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Current Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="Enter current password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={passwordForm.control}
+              name="newPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>New Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="Enter new password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={passwordForm.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="Confirm new password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="col-span-3 flex w-full items-center justify-end">
+              <Button type="submit" disabled={isUpdatingPassword} variant="default" size="lg">
+                {isUpdatingPassword ? <Loader2 className="animate-spin" /> : "Update Password"}
               </Button>
             </div>
           </form>

@@ -65,3 +65,14 @@ export const companySchema = z.object({
 
   company_description: z.string().min(10, "Description must be at least 10 characters").optional(),
 });
+
+export const passwordSchema = z
+  .object({
+    currentPassword: z.string().min(6, "Current password is required"),
+    newPassword: z.string().min(6, "New password must be at least 6 characters"),
+    confirmPassword: z.string().min(6, "Please confirm your new password"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });

@@ -45,6 +45,15 @@ export const companies = api.injectEndpoints({
         responseHandler: (response) => response.blob(),
       }),
     }),
+
+    updatePassword: build.mutation({
+      query: ({ id, data }: { id: string; data: UpdatePassword }) => ({
+        url: `/companies/${id}/update-password`,
+        method: "PUT",
+        body: data,
+      }),
+      transformResponse: (response: { status: string; message: string; data: UpdatePassword }) => response.data,
+    }),
   }),
 });
 
@@ -54,4 +63,5 @@ export const {
   useGetPoliciesQuery,
   usePostPolicyMutation,
   useLazyDownloadPolicyQuery,
+  useUpdatePasswordMutation,
 } = companies;

@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { RootState } from "@/store";
+import type { RootState } from "@/types/global";
 
 export type Employee = {
   id: string;

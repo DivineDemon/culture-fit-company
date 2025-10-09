@@ -72,3 +72,8 @@ declare type DocumentItem = {
   name: string;
   type: "folder" | "file";
 };
+
+declare type UpdatePassword = {
+  old_password: string;
+  new_password: string;
+};

@@ -9,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { employeeSchema } from "@/lib/form-schemas";
-import type { RootState } from "@/store";
+import type { RootState } from "@/types/global";
 import { usePostEmployeeMutation, useUpdateEmployeeMutation } from "@/store/services/employees";
 import UploadModal from "../shared/file-uploader";
 import { Switch } from "../ui/switch";
