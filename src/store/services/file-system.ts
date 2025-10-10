@@ -43,10 +43,11 @@ export const files = api.injectEndpoints({
       }),
       invalidatesTags: ["files"],
     }),
-    moveFile: build.mutation<void, { id: string; folder_id: string }>({
-      query: ({ id, folder_id }) => ({
-        url: `/folder/${folder_id}/file/${id}/move`,
+    moveFile: build.mutation({
+      query: ({ id, new_parent_id }: { id: string; new_parent_id: string }) => ({
+        url: `/folder/file/${id}/move`,
         method: "PUT",
+        body: { new_parent_id },
       }),
       invalidatesTags: ["files"],
     }),

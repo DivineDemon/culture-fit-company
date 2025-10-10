@@ -4,6 +4,7 @@ declare type GlobalState = {
   id: string;
   mode: "employees" | "candidates";
   openFolder: string;
+  selectedFileId?: string;
 };
 
 declare type PostLogin = {
