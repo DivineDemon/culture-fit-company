@@ -10,10 +10,11 @@ export const files = api.injectEndpoints({
       providesTags: ["files"],
       transformResponse: (response: { status: string; message: string; data: GetFolders }) => response.data,
     }),
-    postFolder: build.mutation({
-      query: () => ({
+    postFolder: build.mutation<Folder, Partial<Folder>>({
+      query: (data) => ({
         url: "/folder/",
         method: "POST",
+        body: data,
       }),
       invalidatesTags: ["files"],
       transformResponse: (response: { status: string; message: string; data: Folder }) => response.data,
@@ -42,6 +43,13 @@ export const files = api.injectEndpoints({
       }),
       invalidatesTags: ["files"],
     }),
+    moveFile: build.mutation<void, { id: string; folder_id: string }>({
+      query: ({ id, folder_id }) => ({
+        url: `/folder/${folder_id}/file/${id}/move`,
+        method: "PUT",
+      }),
+      invalidatesTags: ["files"],
+    }),
   }),
 });
 
@@ -51,4 +59,5 @@ export const {
   useUpdateFolderMutation,
   useDeleteFolderMutation,
   usePostFolderMutation,
+  useMoveFileMutation,
 } = files;

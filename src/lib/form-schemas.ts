@@ -76,3 +76,8 @@ export const passwordSchema = z
     message: "Passwords do not match",
     path: ["confirmPassword"],
   });
+
+export const folderSchema = z.object({
+  name: z.string().min(1, "Folder name is required"),
+  description: z.string().optional(),
+});

@@ -1,4 +1,5 @@
 import { type ClassValue, clsx } from "clsx";
+import jsPDF from "jspdf";
 import { GlobalWorkerOptions, getDocument, type PDFDocumentProxy } from "pdfjs-dist";
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.min?url";
 import { twMerge } from "tailwind-merge";
@@ -35,3 +36,29 @@ export async function extractTextFromPDF(file: File): Promise<string> {
 
   return fullText.trim();
 }
+
+export const downloadAsPDF = (fileName: string, content: string) => {
+  if (!content) return;
+
+  const pdf = new jsPDF({
+    orientation: "p",
+    unit: "pt",
+    format: "a4",
+  });
+
+  const lines = pdf.splitTextToSize(content, 500);
+  let y = 60;
+
+  // Add text, automatically paginating if needed
+  lines.forEach((line: string) => {
+    if (y > 750) {
+      pdf.addPage();
+      y = 60;
+    }
+    pdf.text(line, 50, y);
+    y += 14;
+  });
+
+  const safeFileName = fileName.replace(/[^a-z0-9\-_.]/gi, "_") || "document";
+  pdf.save(`${safeFileName}.pdf`);
+};
