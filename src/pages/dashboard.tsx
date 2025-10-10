@@ -7,8 +7,8 @@ import { DataTable } from "@/components/data-table";
 import UploadModal from "@/components/shared/file-uploader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { RootState } from "@/types/global";
 import { useGetEmployeesQuery } from "@/store/services/employees";
+import type { RootState } from "@/types/global";
 
 const Dashboard = () => {
   const columns = useRowColumns();

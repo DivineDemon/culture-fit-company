@@ -37,7 +37,7 @@ declare type Employees = {
 interface FileItem {
   id: string;
   file_name: string;
-  file_data:string;
+  file_data: string;
 };
 
 declare type CompanyInfo = {
@@ -61,10 +61,10 @@ declare type Policy = {
   description: string | null;
 };
 
-declare type CompanyFile ={
+declare type CompanyFile = {
   id: string;
   file_name: string;
-  file_data:string;
+  file_data: string;
 }
 
 declare type DocumentItem = {
@@ -76,4 +76,57 @@ declare type DocumentItem = {
 declare type UpdatePassword = {
   old_password: string;
   new_password: string;
+};
+
+declare type Folder = {
+  id: string;
+  name: string;
+  description: string;
+  parent_id: string;
+  company_id: string;
+  files: string[];
+  subfolders: string[]
+};
+
+declare type GetFolders = {
+  company: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  files: {
+    company_files: string[];
+    employee_files: {
+      id: string;
+      employee_id: string;
+      file_name: string;
+      file_data: string;
+      type: string;
+      created_at: string;
+    }[];
+    physical_files: string[];
+  };
+  folders: {
+    id: string;
+    name: string;
+    description: string;
+    parent_id?: string  | null;
+    created_at: string;
+  }[];
+  reports: {
+    company_files_reports: string[];
+    employee_culture_fit_reports: string[];
+    candidate_culture_reports: string[];
+    candidate_chat_reports: {
+      id: string;
+      summary: string;
+      score: string;
+      created_at: string;
+    }[];
+    role_model_employee_chat_reports: string[];
+    company_employee_role_model_chat_reports: string[];
+    final_reports: string[];
+    candidate_and_role_model_reports: string[];
+  };
+  fetched_at: string;
 };

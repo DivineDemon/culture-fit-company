@@ -10,8 +10,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { RootState } from "@/types/global";
 import { setMode } from "@/store/slices/global";
+import type { RootState } from "@/types/global";
 import MaxWidthWrapper from "./max-width-wrapper";
 import { ModeToggle } from "./mode-toggle";
 import { useTheme } from "./theme-provider";

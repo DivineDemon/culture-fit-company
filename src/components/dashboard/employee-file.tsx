@@ -8,8 +8,8 @@ import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { truncateString } from "@/lib/utils";
-import type { RootState } from "@/types/global";
 import { useGetEmployeefilesQuery } from "@/store/services/employees";
+import type { RootState } from "@/types/global";
 import { Button } from "../ui/button";
 
 interface EmployeeFileData {

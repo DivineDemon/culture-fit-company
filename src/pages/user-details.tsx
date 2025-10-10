@@ -9,8 +9,8 @@ import UploadModal from "@/components/shared/file-uploader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import type { RootState } from "@/types/global";
 import { useGetEmployeebyIdQuery } from "@/store/services/employees";
+import type { RootState } from "@/types/global";
 
 const UserDetails = () => {
   const [open, setOpen] = useState(false);
