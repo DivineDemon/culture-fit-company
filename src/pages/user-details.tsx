@@ -120,7 +120,7 @@ const UserDetails = () => {
         open={uploadOpen}
         onClose={() => setUploadOpen(false)}
         onUpload={handleUpload}
-        companyId={companyId}
+        // companyId={companyId}
         employeeId={id!}
       />
     </div>

@@ -12,7 +12,7 @@ interface UploadModalProps {
   open: boolean;
   onClose: () => void;
   onUpload: (files: File[]) => void;
-  companyId: string;
+  companyId?: string;
   employeeId?: string;
 }
 
