@@ -1,3 +1,5 @@
+import { toast } from "sonner";
+
 export interface WebhookRequest {
   report_type: "company_doc" | "resume";
   file_content: string;
@@ -74,5 +76,59 @@ export const callWebhook = async (
       success: false,
       error: error instanceof Error ? error.message : "Failed to get response",
     };
+  }
+};
+
+export const handleDesired = async (company_id: string) => {
+  const response = await fetch(import.meta.env.VITE_DESIRED_CULTURE_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      company_id,
+    }),
+  });
+
+  if (response.ok) {
+    toast.success("Report Generation Initialized. The Report Will Be Ready In A Few Minutes.");
+  } else {
+    toast.error("Failed to generate report");
+  }
+};
+
+export const handleReal = async (company_id: string) => {
+  const response = await fetch(import.meta.env.VITE_REAL_CULTURE_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      company_id,
+    }),
+  });
+
+  if (response.ok) {
+    toast.success("Report Generation Initialized. The Report Will Be Ready In A Few Minutes.");
+  } else {
+    toast.error("Failed to generate report");
+  }
+};
+
+export const handleRoleModelEmployee = async (company_id: string) => {
+  const response = await fetch(import.meta.env.VITE_ROLE_MODEL_EMPLOYEE_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      company_id,
+    }),
+  });
+
+  if (response.ok) {
+    toast.success("Report Generation Initialized. The Report Will Be Ready In A Few Minutes.");
+  } else {
+    toast.error("Failed to generate report");
   }
 };

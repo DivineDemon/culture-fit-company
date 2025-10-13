@@ -96,7 +96,13 @@ declare type GetFolders = {
     email: string;
   };
   files: {
-    company_files: string[];
+    company_files: {
+      id: string;
+      file_name: string;
+      file_data: string;
+      type: string;
+      created_at: string;
+    }[];
     employee_files: {
       id: string;
       employee_id: string;
@@ -105,19 +111,35 @@ declare type GetFolders = {
       type: string;
       created_at: string;
     }[];
-    physical_files: string[];
   };
   folders: {
     id: string;
     name: string;
     description: string;
-    parent_id?: string  | null;
+    parent_id?: string | null;
     created_at: string;
   }[];
   reports: {
-    company_files_reports: string[];
-    employee_culture_fit_reports: string[];
-    candidate_culture_reports: string[];
+    company_files_reports: {
+      id: string;
+      file_name: string;
+      summary: string;
+      score: number;
+      created_at: string;
+    }[];
+    employee_culture_fit_reports: {
+      id: string;
+      file_name: null;
+      summary: string;
+      score: number;
+      created_at: string;
+    }[];
+    candidate_culture_reports: {
+      id: string;
+      summary: string;
+      score: number;
+      created_at: string | null;
+    }[];
     candidate_chat_reports: {
       id: string;
       summary: string;

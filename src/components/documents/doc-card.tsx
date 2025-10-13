@@ -1,28 +1,14 @@
-import {
-  FileText,
-  Folder,
-  FolderOpen,
-  Move,
-  TextCursorInput,
-  Trash,
-} from "lucide-react";
+import MDEditor from "@uiw/react-md-editor";
+import { FileText, Folder, FolderOpen, Move, TextCursorInput, Trash } from "lucide-react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "sonner";
 import AddFolderDialog from "@/components/documents/add-folder";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import WarningModal from "@/components/warning-modal";
 import { downloadAsPDF } from "@/lib/utils";
-import {
-  useDeleteFolderMutation,
-  useMoveFileMutation,
-} from "@/store/services/file-system";
+import { useDeleteFolderMutation, useMoveFileMutation } from "@/store/services/file-system";
 import { setOpenFolder, setSelectedFileId } from "@/store/slices/global";
 import type { RootState } from "@/types/global";
 import {
@@ -34,7 +20,6 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "../ui/context-menu";
-import { toast } from "sonner";
 
 interface DocCardProps {
   id: string;
@@ -44,13 +29,7 @@ interface DocCardProps {
   file_data?: string;
 }
 
-const DocCard = ({
-  id,
-  file_name,
-  type,
-  folders = [],
-  file_data,
-}: DocCardProps) => {
+const DocCard = ({ id, type, file_name, file_data, folders = [] }: DocCardProps) => {
   const dispatch = useDispatch();
   const { selectedFileId } = useSelector((state: RootState) => state.global);
   const [deleteFolder, { isLoading: isDeleting }] = useDeleteFolderMutation();
@@ -71,7 +50,7 @@ const DocCard = ({
     try {
       await deleteFolder(id);
       setShowDeleteWarning(false);
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete folder");
     }
   };
@@ -81,57 +60,55 @@ const DocCard = ({
       const fileIdToMove = selectedFileId || id;
       await moveFile({ id: fileIdToMove, new_parent_id });
       toast.success("File moved successfully");
-    } catch (error) {
+    } catch {
       toast.error("Failed to move file");
     }
   };
 
   return (
-    <ContextMenu>
-      <ContextMenuTrigger className="flex w-fit flex-col items-center justify-center gap-2.5 rounded-lg p-2.5">
-        {type === "folder" ? (
-          <Folder className="size-16 fill-primary text-primary" />
-        ) : (
-          <FileText className="size-16 fill-primary text-white dark:text-black" />
-        )}
-        <span className="w-full text-wrap text-center font-medium text-[14px] leading-[18px]">
-          {String(file_name ?? "")}
-        </span>
-      </ContextMenuTrigger>
-      <ContextMenuContent className="w-fit">
-        {type === "folder" ? (
-          <ContextMenuItem onClick={handleOpenFolder}>
-            <FolderOpen />
-            Open
-          </ContextMenuItem>
-        ) : null}
-        {type === "folder" && (
-          <ContextMenuItem onClick={handleRenameFolder}>
-            <TextCursorInput />
-            Rename
-          </ContextMenuItem>
-        )}
-        {type === "folder" && (
-          <ContextMenuItem
-            variant="destructive"
-            onClick={() => setShowDeleteWarning(true)}
-          >
-            <Trash />
-            Delete
-          </ContextMenuItem>
-        )}
-        {type === "file" && (
-          <ContextMenuItem
-            onClick={() => {
-              dispatch(setSelectedFileId(id));
-              setShowPreview(true);
-            }}
-          >
-            <FolderOpen />
-            Open
-          </ContextMenuItem>
-        )}
-        {/* <ContextMenuSub>
+    <>
+      <ContextMenu>
+        <ContextMenuTrigger className="flex w-fit flex-col items-center justify-center gap-2.5 rounded-lg p-2.5">
+          {type === "folder" ? (
+            <Folder className="size-16 fill-primary text-primary" />
+          ) : (
+            <FileText className="size-16 fill-primary text-white dark:text-black" />
+          )}
+          <span className="w-full text-wrap text-center font-medium text-[14px] leading-[18px]">
+            {String(file_name ?? "")}
+          </span>
+        </ContextMenuTrigger>
+        <ContextMenuContent className="w-fit">
+          {type === "folder" ? (
+            <ContextMenuItem onClick={handleOpenFolder}>
+              <FolderOpen />
+              Open
+            </ContextMenuItem>
+          ) : null}
+          {type === "folder" && (
+            <ContextMenuItem onClick={handleRenameFolder}>
+              <TextCursorInput />
+              Rename
+            </ContextMenuItem>
+          )}
+          {type === "folder" && (
+            <ContextMenuItem variant="destructive" onClick={() => setShowDeleteWarning(true)}>
+              <Trash />
+              Delete
+            </ContextMenuItem>
+          )}
+          {type === "file" && (
+            <ContextMenuItem
+              onClick={() => {
+                dispatch(setSelectedFileId(id));
+                setShowPreview(true);
+              }}
+            >
+              <FolderOpen />
+              Open
+            </ContextMenuItem>
+          )}
+          {/* <ContextMenuSub>
             <ContextMenuSubTrigger className="gap-2">
               <Move />
               Move to...
@@ -152,30 +129,29 @@ const DocCard = ({
               ))}
             </ContextMenuSubContent>
           </ContextMenuSub> */}
-        {type === "file" && folders.length > 0 && (
-          <ContextMenuSub>
-            <ContextMenuSubTrigger className="gap-2">
-              <Move />
-              Move to...
-            </ContextMenuSubTrigger>
-            <ContextMenuSubContent className="max-h-[400px] w-fit overflow-y-auto">
-              {folders.map((folder) => (
-                <ContextMenuItem key={folder.id} onClick={() => handleMoveFile(folder.id)}>
-                  <Folder />
-                  {folder.name}
-                </ContextMenuItem>
-              ))}
-            </ContextMenuSubContent>
-          </ContextMenuSub>
-        )}
-      </ContextMenuContent>
+          {type === "file" && folders.length > 0 && (
+            <ContextMenuSub>
+              <ContextMenuSubTrigger className="gap-2">
+                <Move />
+                Move to...
+              </ContextMenuSubTrigger>
+              <ContextMenuSubContent className="max-h-[400px] w-fit overflow-y-auto">
+                {folders.map((folder) => (
+                  <ContextMenuItem key={folder.id} onClick={() => handleMoveFile(folder.id)}>
+                    <Folder />
+                    {folder.name}
+                  </ContextMenuItem>
+                ))}
+              </ContextMenuSubContent>
+            </ContextMenuSub>
+          )}
+        </ContextMenuContent>
+      </ContextMenu>
       <WarningModal
         open={showDeleteWarning}
         setOpen={setShowDeleteWarning}
         title="Delete folder?"
-        text={`You're want to delete "${
-          file_name ?? "this folder"
-        }". This action cannot be undone.`}
+        text={`You're want to delete "${file_name ?? "this folder"}". This action cannot be undone.`}
         isLoading={isDeleting}
         cta={handleDeleteFolder}
       />
@@ -191,29 +167,31 @@ const DocCard = ({
           <DialogHeader>
             <DialogTitle>{file_name}</DialogTitle>
           </DialogHeader>
-          <div className="max-h-[60vh] overflow-auto whitespace-pre-wrap text-sm">
-            {file_data ?? "No preview available."}
+          <div className="max-h-[60vh] overflow-auto" data-color-mode="light">
+            {file_data ? (
+              <MDEditor.Markdown
+                source={file_data}
+                style={{
+                  backgroundColor: "transparent",
+                  fontSize: 14,
+                  color: "inherit",
+                }}
+              />
+            ) : (
+              <p className="text-muted-foreground text-sm">No preview available.</p>
+            )}
           </div>
           <DialogFooter>
-            <Button
-              type="button"
-              onClick={() =>
-                downloadAsPDF(file_name ?? "document", file_data ?? "")
-              }
-            >
+            <Button type="button" onClick={() => downloadAsPDF(file_name ?? "document", file_data ?? "")}>
               Download PDF
             </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setShowPreview(false)}
-            >
+            <Button type="button" variant="secondary" onClick={() => setShowPreview(false)}>
               Close
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </ContextMenu>
+    </>
   );
 };
 
