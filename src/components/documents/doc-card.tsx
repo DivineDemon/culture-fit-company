@@ -38,7 +38,7 @@ const DocCard = ({ id, type, file_name, file_data, folders = [] }: DocCardProps)
   const [showPreview, setShowPreview] = useState(false);
   const [moveFile] = useMoveFileMutation();
 
-  const handleOpenFolder = () => {
+  const handleOpenFolder = async () => {
     dispatch(setOpenFolder(id));
   };
 

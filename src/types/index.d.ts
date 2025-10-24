@@ -118,6 +118,16 @@ declare type GetFolders = {
     description: string;
     parent_id?: string | null;
     created_at: string;
+    updated_at: string;
+    files: {
+      id: string;
+      file_name: string;
+      file_data: string;
+      source: string;
+      created_at: string;
+    }[];
+    subfolders: string[];
+    company_id: string;
   }[];
   reports: {
     company_files_reports: {

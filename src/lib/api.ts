@@ -132,3 +132,75 @@ export const handleRoleModelEmployee = async (company_id: string) => {
     toast.error("Failed to generate report");
   }
 };
+
+export const handleCumulativeCompany = async (company_id: string) => {
+  const response = await fetch(import.meta.env.VITE_CUMULATIVE_COMPANY_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      company_id,
+    }),
+  });
+
+  if (response.ok) {
+    toast.success("Report Generation Initialized. The Report Will Be Ready In A Few Minutes.");
+  } else {
+    toast.error("Failed to generate report");
+  }
+};
+
+export const handleCandidateInterview = async (company_id: string) => {
+  const response = await fetch(import.meta.env.VITE_CANDIDATE_INTERVIEW_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      company_id,
+    }),
+  });
+
+  if (response.ok) {
+    toast.success("Report Generation Initialized. The Report Will Be Ready In A Few Minutes.");
+  } else {
+    toast.error("Failed to generate report");
+  }
+};
+
+export const handleCandidateVsRoleModel = async (company_id: string) => {
+  const response = await fetch(import.meta.env.VITE_CANDIDATE_VS_ROLE_MODEL_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      company_id,
+    }),
+  });
+
+  if (response.ok) {
+    toast.success("Report Generation Initialized. The Report Will Be Ready In A Few Minutes.");
+  } else {
+    toast.error("Failed to generate report");
+  }
+};
+
+export const handleCumulativeCulturePerformance = async (company_id: string) => {
+  const response = await fetch(import.meta.env.VITE_CUMULATIVE_CULTURE_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      company_id,
+    }),
+  });
+
+  if (response.ok) {
+    toast.success("Report Generation Initialized. The Report Will Be Ready In A Few Minutes.");
+  } else {
+    toast.error("Failed to generate report");
+  }
+};

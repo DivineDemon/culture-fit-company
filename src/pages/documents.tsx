@@ -10,7 +10,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { handleDesired, handleReal, handleRoleModelEmployee } from "@/lib/api";
+import {
+  handleCandidateInterview,
+  handleCandidateVsRoleModel,
+  handleCumulativeCompany,
+  handleCumulativeCulturePerformance,
+  handleDesired,
+  handleReal,
+  handleRoleModelEmployee,
+} from "@/lib/api";
 import { useGetFilesQuery } from "@/store/services/file-system";
 import { setOpenFolder } from "@/store/slices/global";
 import type { RootState } from "@/types/global";
@@ -21,7 +29,7 @@ const Documents = () => {
   const [addfolder, setAddfolder] = useState<boolean>(false);
   const { id, openFolder } = useSelector((state: RootState) => state.global);
 
-  const { data, isFetching } = useGetFilesQuery(id, { skip: !id });
+  const { data, isFetching } = useGetFilesQuery(id, { skip: !id, pollingInterval: 10000 });
 
   const handleCloseFolder = () => {
     dispatch(setOpenFolder(""));
@@ -31,6 +39,160 @@ const Documents = () => {
     setAddfolder(false);
   }, []);
 
+  // useEffect(() => {
+  //   if (!data) return;
+
+  //   const allFolders = (data.folders ?? []).map((folder) => ({
+  //     id: folder.id,
+  //     name: folder.name,
+  //     parent_id: folder.parent_id ?? null,
+  //   }));
+
+  //   const currentFolderId = openFolder || null;
+  //   const folderItems: DocumentItem[] = allFolders
+  //     .filter((f) =>
+  //       currentFolderId ? f.parent_id === currentFolderId : !f.parent_id
+  //     )
+  //     .map((f) => ({ id: f.id, name: f.name, type: "folder" }));
+
+  //   const employeeFileItems: DocumentItem[] = (data.files?.employee_files ?? [])
+  //     .filter((file) => file.file_data)
+  //     .map((file) => ({
+  //       id: file.id,
+  //       name: file.file_name,
+  //       type: "file",
+  //     }));
+
+  //   const companyFileItems: DocumentItem[] = (data.files?.company_files ?? [])
+  //     .filter((item: string | CompanyFile) => {
+  //       if (typeof item === "string") return false;
+  //       return item?.file_data;
+  //     })
+  //     .map((item: string | CompanyFile, index: number) => {
+  //       if (typeof item === "string") {
+  //         return { id: `company-${index}`, name: item, type: "file" as const };
+  //       }
+  //       return {
+  //         id: item?.id ?? `company-${index}`,
+  //         name: item?.file_name ?? "",
+  //         type: "file" as const,
+  //       };
+  //     });
+
+  //   const companyFilesReports: DocumentItem[] = (
+  //     data.reports?.company_files_reports ?? []
+  //   )
+  //     .filter((report) => report.summary)
+  //     .map((report) => ({
+  //       id: report.id,
+  //       name: report.file_name,
+  //       type: "file" as const,
+  //     }));
+
+  //   const employeeCultureFitReports: DocumentItem[] = (
+  //     data.reports?.employee_culture_fit_reports ?? []
+  //   )
+  //     .filter((report) => report.summary)
+  //     .map((report) => ({
+  //       id: report.id,
+  //       name: `Employee Culture Fit Report - ${new Date(
+  //         report.created_at
+  //       ).toLocaleDateString()}`,
+  //       type: "file" as const,
+  //     }));
+
+  //   const candidateCultureReports: DocumentItem[] = (
+  //     data.reports?.candidate_culture_reports ?? []
+  //   )
+  //     .filter((report) => report.summary)
+  //     .map((report) => ({
+  //       id: report.id,
+  //       name: `Candidate Culture Report - ${
+  //         report.created_at
+  //           ? new Date(report.created_at).toLocaleDateString()
+  //           : "N/A"
+  //       }`,
+  //       type: "file" as const,
+  //     }));
+
+  //   const candidateChatReports: DocumentItem[] = (
+  //     data.reports?.candidate_chat_reports ?? []
+  //   )
+  //     .filter((report) => report.summary)
+  //     .map((report) => ({
+  //       id: report.id,
+  //       name: `Candidate Chat Report - ${new Date(
+  //         report.created_at
+  //       ).toLocaleDateString()}`,
+  //       type: "file" as const,
+  //     }));
+
+  //   const roleModelEmployeeChatReports: DocumentItem[] = (
+  //     data.reports?.role_model_employee_chat_reports ?? []
+  //   )
+  //     .filter((report) => typeof report === "string" || report)
+  //     .map((report, index) => ({
+  //       id: `role-model-emp-${index}`,
+  //       name:
+  //         typeof report === "string"
+  //           ? report
+  //           : `Role Model Employee Chat Report ${index + 1}`,
+  //       type: "file" as const,
+  //     }));
+
+  //   const companyEmployeeRoleModelChatReports: DocumentItem[] = (
+  //     data.reports?.company_employee_role_model_chat_reports ?? []
+  //   )
+  //     .filter((report) => typeof report === "string" || report)
+  //     .map((report, index) => ({
+  //       id: `comp-emp-role-${index}`,
+  //       name:
+  //         typeof report === "string"
+  //           ? report
+  //           : `Company Employee Role Model Chat Report ${index + 1}`,
+  //       type: "file" as const,
+  //     }));
+
+  //   const finalReports: DocumentItem[] = (data.reports?.final_reports ?? [])
+  //     .filter((report) => typeof report === "string" || report)
+  //     .map((report, index) => ({
+  //       id: `final-${index}`,
+  //       name: typeof report === "string" ? report : `Final Report ${index + 1}`,
+  //       type: "file" as const,
+  //     }));
+
+  //   const candidateAndRoleModelReports: DocumentItem[] = (
+  //     data.reports?.candidate_and_role_model_reports ?? []
+  //   )
+  //     .filter((report) => typeof report === "string" || report)
+  //     .map((report, index) => ({
+  //       id: `cand-role-${index}`,
+  //       name:
+  //         typeof report === "string"
+  //           ? report
+  //           : `Candidate & Role Model Report ${index + 1}`,
+  //       type: "file" as const,
+  //     }));
+
+  //   const isRoot = !currentFolderId;
+  //   const filesToShow = isRoot
+  //     ? [
+  //         ...employeeFileItems,
+  //         ...companyFileItems,
+  //         ...companyFilesReports,
+  //         ...employeeCultureFitReports,
+  //         ...candidateCultureReports,
+  //         ...candidateChatReports,
+  //         ...roleModelEmployeeChatReports,
+  //         ...companyEmployeeRoleModelChatReports,
+  //         ...finalReports,
+  //         ...candidateAndRoleModelReports,
+  //       ]
+  //     : [];
+
+  //   setContent([...folderItems, ...filesToShow]);
+  // }, [data, openFolder]);
+
   useEffect(() => {
     if (!data) return;
 
@@ -38,120 +200,66 @@ const Documents = () => {
       id: folder.id,
       name: folder.name,
       parent_id: folder.parent_id ?? null,
+      files: folder.files ?? [],
     }));
 
     const currentFolderId = openFolder || null;
+
+    // 🔹 Get subfolders under current folder
     const folderItems: DocumentItem[] = allFolders
       .filter((f) => (currentFolderId ? f.parent_id === currentFolderId : !f.parent_id))
-      .map((f) => ({ id: f.id, name: f.name, type: "folder" }));
-
-    const employeeFileItems: DocumentItem[] = (data.files?.employee_files ?? [])
-      .filter((file) => file.file_data)
-      .map((file) => ({
-        id: file.id,
-        name: file.file_name,
-        type: "file",
+      .map((f) => ({
+        id: f.id,
+        name: f.name,
+        type: "folder" as const,
       }));
 
-    const companyFileItems: DocumentItem[] = (data.files?.company_files ?? [])
-      .filter((item: string | CompanyFile) => {
-        if (typeof item === "string") return false;
-        return item?.file_data;
-      })
-      .map((item: string | CompanyFile, index: number) => {
-        if (typeof item === "string") {
-          return { id: `company-${index}`, name: item, type: "file" as const };
-        }
-        return {
-          id: item?.id ?? `company-${index}`,
-          name: item?.file_name ?? "",
+    let filesToShow: DocumentItem[] = [];
+
+    if (currentFolderId) {
+      // 📁 Show files inside the opened folder
+      const currentFolder = data.folders.find((f) => f.id === currentFolderId);
+      if (currentFolder?.files) {
+        filesToShow = currentFolder.files.map((file) => ({
+          id: file.id,
+          name: file.file_name,
           type: "file" as const,
-        };
-      });
+        }));
+      }
+    } else {
+      // 🏠 Root-level files (your existing logic)
+      const employeeFileItems: DocumentItem[] = (data.files?.employee_files ?? [])
+        .filter((file) => file.file_data)
+        .map((file) => ({
+          id: file.id,
+          name: file.file_name,
+          type: "file" as const,
+        }));
 
-    const companyFilesReports: DocumentItem[] = (data.reports?.company_files_reports ?? [])
-      .filter((report) => report.summary)
-      .map((report) => ({
-        id: report.id,
-        name: report.file_name,
+      const companyFileItems: DocumentItem[] = (data.files?.company_files ?? [])
+        .filter((item: string | CompanyFile) => typeof item !== "string")
+        .map((item) => ({
+          id: item.id,
+          name: item.file_name,
+          type: "file" as const,
+        }));
+
+      const companyFilesReports: DocumentItem[] = (data.reports?.company_files_reports ?? [])
+        .filter((r) => r.summary)
+        .map((r) => ({
+          id: r.id,
+          name: r.file_name,
+          type: "file" as const,
+        }));
+
+      const employeeCultureFitReports: DocumentItem[] = (data.reports?.employee_culture_fit_reports ?? []).map((r) => ({
+        id: r.id,
+        name: `Employee Culture Fit - ${new Date(r.created_at).toLocaleDateString()}`,
         type: "file" as const,
       }));
 
-    const employeeCultureFitReports: DocumentItem[] = (data.reports?.employee_culture_fit_reports ?? [])
-      .filter((report) => report.summary)
-      .map((report) => ({
-        id: report.id,
-        name: `Employee Culture Fit Report - ${new Date(report.created_at).toLocaleDateString()}`,
-        type: "file" as const,
-      }));
-
-    const candidateCultureReports: DocumentItem[] = (data.reports?.candidate_culture_reports ?? [])
-      .filter((report) => report.summary)
-      .map((report) => ({
-        id: report.id,
-        name: `Candidate Culture Report - ${
-          report.created_at ? new Date(report.created_at).toLocaleDateString() : "N/A"
-        }`,
-        type: "file" as const,
-      }));
-
-    const candidateChatReports: DocumentItem[] = (data.reports?.candidate_chat_reports ?? [])
-      .filter((report) => report.summary)
-      .map((report) => ({
-        id: report.id,
-        name: `Candidate Chat Report - ${new Date(report.created_at).toLocaleDateString()}`,
-        type: "file" as const,
-      }));
-
-    const roleModelEmployeeChatReports: DocumentItem[] = (data.reports?.role_model_employee_chat_reports ?? [])
-      .filter((report) => typeof report === "string" || report)
-      .map((report, index) => ({
-        id: `role-model-emp-${index}`,
-        name: typeof report === "string" ? report : `Role Model Employee Chat Report ${index + 1}`,
-        type: "file" as const,
-      }));
-
-    const companyEmployeeRoleModelChatReports: DocumentItem[] = (
-      data.reports?.company_employee_role_model_chat_reports ?? []
-    )
-      .filter((report) => typeof report === "string" || report)
-      .map((report, index) => ({
-        id: `comp-emp-role-${index}`,
-        name: typeof report === "string" ? report : `Company Employee Role Model Chat Report ${index + 1}`,
-        type: "file" as const,
-      }));
-
-    const finalReports: DocumentItem[] = (data.reports?.final_reports ?? [])
-      .filter((report) => typeof report === "string" || report)
-      .map((report, index) => ({
-        id: `final-${index}`,
-        name: typeof report === "string" ? report : `Final Report ${index + 1}`,
-        type: "file" as const,
-      }));
-
-    const candidateAndRoleModelReports: DocumentItem[] = (data.reports?.candidate_and_role_model_reports ?? [])
-      .filter((report) => typeof report === "string" || report)
-      .map((report, index) => ({
-        id: `cand-role-${index}`,
-        name: typeof report === "string" ? report : `Candidate & Role Model Report ${index + 1}`,
-        type: "file" as const,
-      }));
-
-    const isRoot = !currentFolderId;
-    const filesToShow = isRoot
-      ? [
-          ...employeeFileItems,
-          ...companyFileItems,
-          ...companyFilesReports,
-          ...employeeCultureFitReports,
-          ...candidateCultureReports,
-          ...candidateChatReports,
-          ...roleModelEmployeeChatReports,
-          ...companyEmployeeRoleModelChatReports,
-          ...finalReports,
-          ...candidateAndRoleModelReports,
-        ]
-      : [];
+      filesToShow = [...employeeFileItems, ...companyFileItems, ...companyFilesReports, ...employeeCultureFitReports];
+    }
 
     setContent([...folderItems, ...filesToShow]);
   }, [data, openFolder]);
@@ -184,19 +292,31 @@ const Documents = () => {
                   <Users />
                   Role Model vs. Employees
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleCumulativeCompany(id)}>
                   <BarChart3 />
                   Cumulative Company Culture
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    handleCandidateInterview(id);
+                  }}
+                >
                   <FileSearch />
                   Candidates Interview Analysis
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    handleCandidateVsRoleModel(id);
+                  }}
+                >
                   <GitCompare />
                   Candidates vs. Role Models
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    handleCumulativeCulturePerformance(id);
+                  }}
+                >
                   <TrendingUp />
                   Cumulative Cultural Performance
                 </DropdownMenuItem>
